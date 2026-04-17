@@ -206,8 +206,10 @@
 // export default ClinicalProfile;
 
 
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
+  Alert,
   Dimensions,
   Platform,
   SafeAreaView,
@@ -227,9 +229,33 @@ import { useTheme } from '../../../theme/ThemeContext';
 const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
   const { isDark, toggleTheme } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
   const [isNotifications, setIsNotifications] = React.useState(true);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            // navigation.reset for a clean logout
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'SelectRole' }],
+              })
+            );
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -382,7 +408,7 @@ const ProfileScreen = () => {
            <SettingItem icon="shield-lock-outline" title="Privacy & Data" sub="Manage your data & privacy" isDark={isDark} styles={styles} />
            <SettingItem icon="help-circle-outline" title="Help & Support" sub="FAQ, contact, and feedback" isDark={isDark} styles={styles} />
            
-           <TouchableOpacity style={styles.signOutBtn}>
+           <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
               <Icon name="logout" size={20} color="#EF4444" />
               <Text style={styles.signOutText}>Sign Out</Text>
            </TouchableOpacity>
