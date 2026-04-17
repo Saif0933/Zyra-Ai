@@ -69,7 +69,7 @@ const BeautiCareTabNavigator = () => {
         component={ProgressScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <Icon name="face-woman-shimmer-outline" color={color} size={24} />
+            <Icon name="calendar-month-outline" color={color} size={24} />
           ),
         }}
       />
