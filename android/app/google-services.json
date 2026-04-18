@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "366048809349",
+    "project_id": "signin-74c91",
+    "storage_bucket": "signin-74c91.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366048809349:android:873176500005e96f0374ec",
+        "android_client_info": {
+          "package_name": "com.healthai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbXsyR6Sk6Z2Ae8b7FWPveKHhVNi-xeF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
