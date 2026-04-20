@@ -12,6 +12,8 @@ import SelectRoleScreen from './src/selectRole/SelectRoleScreen';
 // Main App Navigators
 import BeautiCareTabNavigator from './src/beautiCare/navigation/BeautiCareTabNavigator';
 import BottomTabNavigator from './src/gymfitness/navigation/BottomTabNavigator';
+import HealthGoalScreen from './src/gymfitness/screen/setting/HealthGoalScreen';
+import WorkoutIntegrationScreen from './src/gymfitness/screen/setting/WorkoutIntegrationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +39,8 @@ function AppContent() {
 
           {/* Main App - HealthAi */}
           <Stack.Screen name="HealthAiMain" component={BottomTabNavigator} />
+          <Stack.Screen name="HealthGoals" component={HealthGoalScreen} />
+          <Stack.Screen name="WorkoutIntegration" component={WorkoutIntegrationScreen} />
 
           {/* Main App - BeautiCare */}
           <Stack.Screen name="BeautiCareMain" component={BeautiCareTabNavigator} />

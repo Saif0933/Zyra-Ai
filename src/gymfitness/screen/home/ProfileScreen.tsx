@@ -403,8 +403,22 @@ const ProfileScreen = () => {
             isDark={isDark}
             styles={styles}
            />
-           <SettingItem icon="heart-outline" title="Health Goals" sub="Update your fitness targets" isDark={isDark} styles={styles} />
-           <SettingItem icon="run-fast" title="Workout Integration" sub="Connect with fitness apps" isDark={isDark} styles={styles} />
+           <SettingItem 
+            icon="heart-outline" 
+            title="Health Goals" 
+            sub="Update your fitness targets" 
+            isDark={isDark} 
+            styles={styles} 
+            onPress={() => navigation.navigate('HealthGoals' as never)}
+           />
+           <SettingItem 
+            icon="run-fast" 
+            title="Workout Integration" 
+            sub="Connect with fitness apps" 
+            isDark={isDark} 
+            styles={styles} 
+            onPress={() => navigation.navigate('WorkoutIntegration' as never)}
+           />
            <SettingItem icon="shield-lock-outline" title="Privacy & Data" sub="Manage your data & privacy" isDark={isDark} styles={styles} />
            <SettingItem icon="help-circle-outline" title="Help & Support" sub="FAQ, contact, and feedback" isDark={isDark} styles={styles} />
            
@@ -437,8 +451,12 @@ const AchievementItem = ({ icon, label, color, active, styles }: any) => (
   </View>
 );
 
-const SettingItem = ({ icon, title, sub, type, value, onValueChange, isDark, styles }: any) => (
-  <TouchableOpacity style={styles.settingItem} activeOpacity={type === 'switch' ? 1 : 0.7}>
+const SettingItem = ({ icon, title, sub, type, value, onValueChange, isDark, styles, onPress }: any) => (
+  <TouchableOpacity 
+    style={styles.settingItem} 
+    activeOpacity={type === 'switch' ? 1 : 0.7}
+    onPress={type !== 'switch' ? onPress : undefined}
+  >
     <View style={styles.settingLeft}>
       <View style={styles.settingIconBg}>
         <Icon name={icon} size={20} color={isDark ? "#94A3B8" : "#64748B"} />
