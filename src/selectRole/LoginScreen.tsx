@@ -1,6 +1,9 @@
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -38,6 +41,56 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com',
+      offlineAccess: false, 
+    });
+  }, []);
+
+  const onGoogleButtonPress = async () => {
+    try {
+      setIsLoading(true);
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const response = await GoogleSignin.signIn();
+      
+      if (response.type !== 'success') {
+        setIsLoading(false);
+        return;
+      }
+
+      const idToken = response.data.idToken;
+
+      if (!idToken) {
+        throw new Error('Google Sign-In: idToken is missing');
+      }
+
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(googleCredential);
+      
+      setIsLoading(false);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
+      });
+    } catch (error: any) {
+      console.log('Google Sign-In Error:', error);
+      console.log('Detailed Error:', JSON.stringify(error, null, 2));
+      setIsLoading(false);
+      
+      let message = 'An error occurred during Google Sign-In';
+      if (error.code === '10') {
+        message = 'Developer Error (10): Please check if your SHA-1 fingerprint is added to Firebase Console and matches your keystore.';
+      } else if (error.code === '12500') {
+        message = 'Sign-In Failed (12500): Usually caused by a missing Support Email in Firebase Project Settings or SHA-1 mismatch.';
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      Alert.alert('Sign-In Error', `Code: ${error.code}\n${message}`);
+    }
+  };
 
   const validateEmail = (text: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -161,6 +214,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
 
             <TouchableOpacity style={[styles.loginBtn, { backgroundColor: accentColor }]} onPress={handleLogin}>
               {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginBtnText}>Sign In</Text>}
+            </TouchableOpacity>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.divider} />
+            </View>
+
+            <TouchableOpacity style={styles.googleBtn} onPress={onGoogleButtonPress}>
+              <Icon name="google" size={20} color={isDark ? '#F1F5F9' : '#0F172A'} />
+              <Text style={styles.googleBtnText}>Continue with Google</Text>
             </TouchableOpacity>
 
           </View>
@@ -311,6 +375,38 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) =>
       color: '#fff',
       fontWeight: '700',
       fontSize: 16,
+    },
+    dividerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 24,
+    },
+    divider: {
+      flex: 1,
+      height: 1,
+      backgroundColor: isDark ? '#334155' : '#E2E8F0',
+    },
+    dividerText: {
+      marginHorizontal: 16,
+      color: isDark ? '#94A3B8' : '#64748B',
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    googleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 16,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: isDark ? '#334155' : '#E2E8F0',
+      backgroundColor: isDark ? 'transparent' : '#FFFFFF',
+    },
+    googleBtnText: {
+      marginLeft: 10,
+      color: isDark ? '#F1F5F9' : '#0F172A',
+      fontWeight: '600',
+      fontSize: 15,
     },
   });
 
