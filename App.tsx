@@ -1,21 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from './src/theme/ThemeContext';
-
-// Auth Screens
-import LoginScreen from './src/selectRole/LoginScreen';
-import SelectRoleScreen from './src/selectRole/SelectRoleScreen';
-
-// Main App Navigators
-import BeautiCareTabNavigator from './src/beautiCare/navigation/BeautiCareTabNavigator';
-import BottomTabNavigator from './src/gymfitness/navigation/BottomTabNavigator';
-import HealthGoalScreen from './src/gymfitness/screen/setting/HealthGoalScreen';
-import WorkoutIntegrationScreen from './src/gymfitness/screen/setting/WorkoutIntegrationScreen';
-
-const Stack = createNativeStackNavigator();
+import RootNavigator from './src/stack/RootNavigator';
 
 function AppContent() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -27,24 +15,7 @@ function AppContent() {
         backgroundColor={isDarkMode ? '#000000' : '#F8FAFC'}
       />
       <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: 'slide_from_right',
-          }}
-        >
-          {/* Auth Flow */}
-          <Stack.Screen name="SelectRole" component={SelectRoleScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-
-          {/* Main App - HealthAi */}
-          <Stack.Screen name="HealthAiMain" component={BottomTabNavigator} />
-          <Stack.Screen name="HealthGoals" component={HealthGoalScreen} />
-          <Stack.Screen name="WorkoutIntegration" component={WorkoutIntegrationScreen} />
-
-          {/* Main App - BeautiCare */}
-          <Stack.Screen name="BeautiCareMain" component={BeautiCareTabNavigator} />
-        </Stack.Navigator>
+          <RootNavigator />
       </NavigationContainer>
     </SafeAreaProvider>
   );
