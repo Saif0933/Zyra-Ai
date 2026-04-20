@@ -451,10 +451,10 @@ const NutriScanChat = () => {
             onPress={() => setMessages([])}
             style={styles.logoContainer}
           >
-            <Icon name="sparkles" size={24} color="#22C55E" />
+            <Icon name="robot-outline" size={24} color="#22C55E" />
           </TouchableOpacity>
           <View style={{ marginLeft: 12 }}>
-            <Text style={styles.headerTitle}>NutriScan AI Assistant</Text>
+            <Text style={styles.headerTitle}>AI Assistant</Text>
             {/* <Text style={styles.headerSub}>Online • AI Powered</Text> */}
           </View>
         </View>

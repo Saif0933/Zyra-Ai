@@ -15,14 +15,17 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
+import { ThemeColors } from '../../../theme/colors';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 const BeautiCareChat = () => {
-  const { isDark } = useTheme();
-  const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
+  const { colors, isDark } = useTheme();
+  const styles = React.useMemo(() => createDynamicStyles(colors, isDark), [colors, isDark]);
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
+  const [isAiTyping, setIsAiTyping] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSend = (text: string) => {
@@ -31,6 +34,7 @@ const BeautiCareChat = () => {
     const userMsg = { id: Date.now(), text, sender: 'user' };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
+    setIsAiTyping(true);
 
     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
 
@@ -44,10 +48,11 @@ const BeautiCareChat = () => {
 
       const aiText = responses[text] || "I'm your BeautiCare AI! I can help with skincare routines, ingredient safety checks, product recommendations, and achieving your glow goals. What would you like to know?";
 
+      setIsAiTyping(false);
       const aiMsg = { id: Date.now() + 1, text: aiText, sender: 'ai' };
       setMessages(prev => [...prev, aiMsg]);
       setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
-    }, 1200);
+    }, 2000);
   };
 
   return (
@@ -61,10 +66,10 @@ const BeautiCareChat = () => {
             onPress={() => setMessages([])}
             style={styles.logoContainer}
           >
-            <Icon name="sparkles" size={24} color="#F43F5E" />
+            <Icon name="robot-outline" size={24} color="#F43F5E" />
           </TouchableOpacity>
           <View style={{ marginLeft: 12 }}>
-            <Text style={styles.headerTitle}>BeautiCare AI Assistant</Text>
+            <Text style={styles.headerTitle}>AI Assistant</Text>
           </View>
         </View>
         {messages.length > 0 && (
@@ -142,27 +147,61 @@ const BeautiCareChat = () => {
           ) : (
             /* Chat Interface */
             <View style={styles.chatHistory}>
-              {messages.map((msg) => (
-                <View
-                  key={msg.id}
-                  style={[
-                    styles.messageBubble,
-                    msg.sender === 'user' ? styles.userBubble : styles.aiBubble
-                  ]}
-                >
-                  {msg.sender === 'ai' && (
-                    <View style={styles.aiAvatarSmall}>
-                      <Icon name="face-woman-shimmer-outline" size={12} color="#F43F5E" />
+               {messages.map((msg, idx) => {
+                 const isLatestAiMessage = msg.sender === 'ai' && idx === messages.length - 1;
+                 
+                 return (
+                   <View 
+                     key={msg.id} 
+                     style={[
+                       styles.messageBubbleContainer, 
+                       msg.sender === 'user' ? styles.userRow : styles.aiRow
+                     ]}
+                   >
+                     {msg.sender === 'user' ? (
+                       <LinearGradient
+                          colors={['#F43F5E', '#BE123C']}
+                          style={styles.userBubble}
+                       >
+                          <Text style={styles.userText}>{msg.text}</Text>
+                       </LinearGradient>
+                     ) : (
+                       <View style={styles.aiBubbleWrapper}>
+                          <View style={styles.aiAvatarSmall}>
+                            <Icon name="face-woman-shimmer-outline" size={16} color="#F43F5E" />
+                          </View>
+                          <View style={styles.aiBubble}>
+                            {isLatestAiMessage ? (
+                              <TypingText 
+                                text={msg.text} 
+                                styles={styles} 
+                                onFinished={() => scrollViewRef.current?.scrollToEnd({ animated: true })} 
+                              />
+                            ) : (
+                              <Text style={styles.aiText}>{msg.text}</Text>
+                            )}
+                          </View>
+                       </View>
+                     )}
+                   </View>
+                 );
+               })}
+               {isAiTyping && (
+                 <View style={styles.aiRow}>
+                    <View style={styles.aiBubbleWrapper}>
+                      <View style={styles.aiAvatarSmall}>
+                        <Icon name="face-woman-shimmer-outline" size={16} color="#F43F5E" />
+                      </View>
+                      <View style={[styles.aiBubble, { width: 60, paddingVertical: 12 }]}>
+                         <View style={styles.typingIndicator}>
+                            <View style={[styles.dot, { backgroundColor: '#F43F5E' }]} />
+                            <View style={[styles.dot, { backgroundColor: '#F43F5E', opacity: 0.6 }]} />
+                            <View style={[styles.dot, { backgroundColor: '#F43F5E', opacity: 0.3 }]} />
+                         </View>
+                      </View>
                     </View>
-                  )}
-                  <Text style={[
-                    styles.messageText,
-                    msg.sender === 'user' ? styles.userText : styles.aiText
-                  ]}>
-                    {msg.text}
-                  </Text>
-                </View>
-              ))}
+                 </View>
+               )}
             </View>
           )}
         </ScrollView>
@@ -204,18 +243,46 @@ const SuggestionCard = ({ icon, title, sub, onPress, styles }: any) => (
   </TouchableOpacity>
 );
 
-const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: isDark ? '#000' : '#FFF9FA' },
+const TypingText = ({ text, styles, onFinished }: any) => {
+  const [displayedText, setDisplayedText] = useState('');
+  
+  React.useEffect(() => {
+    let currentText = '';
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        currentText += text[i];
+        setDisplayedText(currentText);
+        i++;
+        if (i % 5 === 0) onFinished?.();
+      } else {
+        clearInterval(interval);
+        onFinished?.();
+      }
+    }, 20);
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <Text style={styles.aiText}>{displayedText}</Text>;
+};
+
+const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   isDark: isDark as any,
   header: {
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: isDark ? '#111' : '#FFF',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: isDark ? '#222' : '#F1F5F9',
+    borderBottomColor: colors.border,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   endChatBtn: {
@@ -237,8 +304,8 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: 16, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
-  headerSub: { fontSize: 12, color: '#64748B' },
+  headerTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text },
+  headerSub: { fontSize: 12, color: colors.textSecondary },
 
   scrollContent: { paddingHorizontal: 20, paddingTop: 40, paddingBottom: 150 },
 
@@ -262,14 +329,14 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: isDark ? '#000' : '#FFF9FA',
+    borderColor: colors.background,
   },
 
   welcomeTextContainer: { alignItems: 'center', marginBottom: 30 },
-  mainTitle: { fontSize: 22, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B', textAlign: 'center' },
+  mainTitle: { fontSize: 22, fontWeight: 'bold', color: colors.text, textAlign: 'center' },
   description: {
     fontSize: 14,
-    color: isDark ? '#94A3B8' : '#64748B',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 12,
     lineHeight: 20,
@@ -280,98 +347,122 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: isDark ? '#111' : '#FFF',
+    backgroundColor: colors.card,
     padding: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: isDark ? '#222' : '#E2E8F0',
+    borderColor: colors.border,
   },
   cardIconBg: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: isDark ? '#1A1A1A' : '#F8FAFC',
+    backgroundColor: colors.iconBg,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardTitle: { fontSize: 15, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
-  cardSub: { fontSize: 13, color: '#64748B', marginTop: 2 },
+  cardTitle: { fontSize: 15, fontWeight: 'bold', color: colors.text },
+  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
 
   inputSection: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    backgroundColor: isDark ? '#000' : '#FFF9FA',
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 20,
+    paddingBottom: 25,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: isDark ? '#111' : '#FFF',
+    backgroundColor: colors.card,
     borderRadius: 25,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  input: { flex: 1, fontSize: 15, color: colors.text, maxHeight: 100 },
+  sendBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.iconBg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+
+  chatHistory: { gap: 20, paddingBottom: 20 },
+  messageBubbleContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  userRow: { justifyContent: 'flex-end' },
+  aiRow: { justifyContent: 'flex-start' },
+  userBubble: {
+    maxWidth: '80%',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 18,
+    borderBottomRightRadius: 4,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  aiBubbleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    maxWidth: '85%',
+  },
+  aiBubble: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: isDark ? '#111' : '#FFFFFF',
+    borderTopLeftRadius: 4,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: isDark ? '#222' : '#E2E8F0',
-    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
-  },
-  input: { flex: 1, fontSize: 15, color: isDark ? '#FFF' : '#1E293B', maxHeight: 80 },
-  sendBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: isDark ? '#1A1A1A' : '#F8FAFC',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  chatHistory: { gap: 16, paddingBottom: 20 },
-  messageBubble: {
-    maxWidth: '85%',
-    padding: 14,
-    borderRadius: 20,
-    marginBottom: 4,
-  },
-  userBubble: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#F43F5E',
-    borderBottomRightRadius: 4,
-  },
-  aiBubble: {
-    alignSelf: 'flex-start',
-    backgroundColor: isDark ? '#111' : '#FFF',
-    borderTopLeftRadius: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: isDark ? '#222' : '#F1F5F9',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 16,
     elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
   },
   aiAvatarSmall: {
-    width: 20,
-    height: 20,
+    width: 32,
+    height: 32,
     borderRadius: 10,
     backgroundColor: isDark ? '#4A1D1D' : '#FFF0F5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 8,
     marginTop: 2,
   },
   messageText: { fontSize: 15, lineHeight: 22 },
-  userText: { color: '#FFF' },
-  aiText: { color: isDark ? '#FFF' : '#1E293B' },
+  userText: { color: '#FFF', fontWeight: '500' },
+  aiText: { color: colors.text, lineHeight: 22 },
+  typingIndicator: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 4,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  }
 });
 
 export default BeautiCareChat;
