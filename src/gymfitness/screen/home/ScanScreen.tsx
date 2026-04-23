@@ -364,9 +364,11 @@
 // export default ClinicalCurator;
 
 
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Image,
   SafeAreaView,
@@ -379,16 +381,22 @@ import {
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import { useAddMeal } from '../../../auth/hook/gymGole/useGym';
+// import { useCreateScan } from '../../../auth/hook/scanFood/useScan';
 import { useTheme } from '../../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const FoodScannerScreen = () => {
+  const navigation = useNavigation<any>();
   const { isDark } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+
+  // const addMealMutation = useAddMeal();
+  // const createScanMutation = useCreateScan();
 
   const handleCapture = async () => {
     const result = await launchCamera({
@@ -417,20 +425,26 @@ const FoodScannerScreen = () => {
     setIsAnalyzing(true);
     setAnalysisResult(null);
 
-    // Mock analysis process
+    // Mock AI Analysis (REVERTED)
     setTimeout(() => {
-      setIsAnalyzing(false);
-      setAnalysisResult({
-        name: 'Avocado Toast with Egg',
-        calories: 342,
-        protein: '14g',
-        carbs: '22g',
-        fats: '18g',
-        fiber: '8g',
-        vitamins: 'High in Vit K, E',
-        healthScore: 85
-      });
+        setIsAnalyzing(false);
+        setAnalysisResult({
+            productName: 'Grilled Chicken Salad',
+            safetyScore: 92,
+            calories: 345,
+            protein: 28,
+            carbs: 12,
+            fats: 8,
+            scanType: 'MEAL',
+            recommendation: 'Excellent'
+        });
     }, 2000);
+  };
+
+  const handleLogMeal = () => {
+    if (!analysisResult) return;
+    Alert.alert("Success", "Meal logged to your health journal! (Mock)");
+    navigation.navigate('Home');
   };
 
   return (
@@ -518,10 +532,10 @@ const FoodScannerScreen = () => {
                 <View style={styles.resultHeader}>
                     <Image source={{ uri: imageUri! }} style={styles.resultImage} />
                     <View style={styles.resultMainInfo}>
-                        <Text style={styles.foodName}>{analysisResult.name}</Text>
+                        <Text style={styles.foodName}>{analysisResult.productName}</Text>
                         <View style={styles.scoreRow}>
-                            <View style={styles.scoreBadge}>
-                                <Text style={styles.scoreText}>{analysisResult.healthScore}</Text>
+                            <View style={[styles.scoreBadge, { backgroundColor: (analysisResult.safetyScore || 0) > 70 ? '#22C55E' : '#F59E0B' }]}>
+                                <Text style={styles.scoreText}>{analysisResult.safetyScore || '--'}</Text>
                             </View>
                             <Text style={styles.scoreLabel}>Health Score</Text>
                         </View>
@@ -529,24 +543,33 @@ const FoodScannerScreen = () => {
                 </View>
 
                 <View style={styles.statsGrid}>
-                    <ResultStat label="CALORIES" value={analysisResult.calories} unit="kcal" icon="fire" color="#EF4444" styles={styles} />
-                    <ResultStat label="PROTEIN" value={analysisResult.protein} unit="" icon="food-steak" color="#3B82F6" styles={styles} />
-                    <ResultStat label="CARBS" value={analysisResult.carbs} unit="" icon="corn" color="#F59E0B" styles={styles} />
-                    <ResultStat label="FATS" value={analysisResult.fats} unit="" icon="water" color="#10B981" styles={styles} />
+                    <ResultStat label="CALORIES" value={analysisResult.calories || 0} unit="kcal" icon="fire" color="#EF4444" styles={styles} />
+                    <ResultStat label="PROTEIN" value={analysisResult.protein || 0} unit="g" icon="food-steak" color="#3B82F6" styles={styles} />
+                    <ResultStat label="CARBS" value={analysisResult.carbs || 0} unit="g" icon="corn" color="#F59E0B" styles={styles} />
+                    <ResultStat label="FATS" value={analysisResult.fats || 0} unit="g" icon="water" color="#10B981" styles={styles} />
                 </View>
 
                 <View style={styles.detailSection}>
                     <View style={styles.detailRow}>
-                        <Icon name="leaf" size={18} color="#10B981" />
-                        <Text style={styles.detailLabel}>Fiber</Text>
-                        <Text style={styles.detailValue}>{analysisResult.fiber}</Text>
+                        <Icon name="tag-outline" size={18} color="#6366F1" />
+                        <Text style={styles.detailLabel}>Type</Text>
+                        <Text style={styles.detailValue}>{analysisResult.scanType}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                        <Icon name="pill" size={18} color="#A855F7" />
-                        <Text style={styles.detailLabel}>Vitamins</Text>
-                        <Text style={styles.detailValue}>{analysisResult.vitamins}</Text>
+                        <Icon name="recommend" size={18} color="#10B981" />
+                        <Text style={styles.detailLabel}>Rating</Text>
+                        <Text style={styles.detailValue}>{analysisResult.recommendation || 'Balanced'}</Text>
                     </View>
                 </View>
+
+                <TouchableOpacity 
+                    style={[styles.saveBtn, { backgroundColor: '#22C55E', marginBottom: 12 }]}
+                    onPress={handleLogMeal}
+                    disabled={false}
+                >
+                    <Icon name="check-bold" size={20} color="#FFF" />
+                    <Text style={[styles.saveBtnText, { color: '#FFF' }]}>Log to Health Journal</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity 
                     style={styles.resetBtn}
@@ -756,6 +779,18 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   detailLabel: { fontSize: 14, color: isDark ? '#94A3B8' : '#64748B', marginLeft: 12, flex: 1 },
   detailValue: { fontSize: 14, fontWeight: '600', color: isDark ? '#FFF' : '#1E293B' },
   
+  saveBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    paddingVertical: 14, 
+    borderRadius: 12,
+  },
+  saveBtnText: {
+    fontWeight: 'bold',
+    marginLeft: 10,
+    fontSize: 16,
+  },
   resetBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: isDark ? '#333' : '#E2E8F0' },
   resetBtnText: { color: isDark ? '#94A3B8' : '#64748B', fontWeight: 'bold', marginLeft: 8 },
 });

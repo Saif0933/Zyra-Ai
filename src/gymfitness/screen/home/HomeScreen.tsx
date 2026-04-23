@@ -10,7 +10,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Path, G, Defs, LinearGradient as SvgGradient, Stop, Rect, Text as SvgText } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 
@@ -82,29 +82,40 @@ const NutritionDashboard = () => {
           <MicroGridItem label="Calcium" val="800mg / 1000mg" color="#6366F1" progress={0.80} styles={styles} />
         </View>
 
-        {/* Weekly Overview */}
+        {/* PERFORMANCE ANALYTICS SECTION */}
         <View style={styles.weeklyCard}>
-            <Text style={styles.sectionHeader}>Weekly Overview (Calories)</Text>
-            
-            <View style={styles.chartContainer}>
-              {/* Y-Axis Labels */}
-              <View style={styles.yAxisLabels}>
-                <Text style={styles.axisText}>2k</Text>
-                <Text style={styles.axisText}>1k</Text>
-                <Text style={styles.axisText}>0</Text>
-              </View>
-              
-              {/* Bars */}
-              <View style={styles.chartBars}>
-                <WeeklyBar day="Mon" height={60} color="#10B981" styles={styles} />
-                <WeeklyBar day="Tue" height={85} color="#10B981" styles={styles} />
-                <WeeklyBar day="Wed" height={40} color="#FBBF24" styles={styles} />
-                <WeeklyBar day="Thu" height={90} color="#10B981" styles={styles} />
-                <WeeklyBar day="Fri" height={100} color="#F97316" styles={styles} />
-                <WeeklyBar day="Sat" height={75} color="#10B981" styles={styles} />
-                <WeeklyBar day="Sun" height={55} color="#10B981" styles={styles} />
+          <View style={styles.chartHeaderRow}>
+            <View style={styles.rowAlign}>
+              <Icon name="chart-line" size={22} color="#10B981" />
+              <View style={{marginLeft: 10}}>
+                <Text style={styles.sectionHeader}>Performance Analytics</Text>
+                <Text style={styles.chartSubtitle}>WEEKLY CALORIE INTAKE VS GOAL</Text>
               </View>
             </View>
+          </View>
+
+          {/* Legend Row */}
+          <View style={styles.legendRow}>
+              <View style={styles.legendItem}>
+                <View style={[styles.dot, {backgroundColor: '#10B981'}]} />
+                <Text style={styles.legendText}>Actual</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.dot, {backgroundColor: '#E2E8F0'}]} />
+                <Text style={styles.legendText}>Target</Text>
+              </View>
+          </View>
+
+          <View style={styles.chartWrapper}>
+            <LineChartSVG 
+               data={[2100, 1950, 2100, 1850, 1800, 2400, 1850]}
+               labels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+               height={220}
+               width={width - 40}
+               isDark={isDark}
+               styles={styles}
+            />
+          </View>
         </View>
 
         {/* RECENT MEALS SECTION */}
@@ -135,6 +146,136 @@ const NutritionDashboard = () => {
 };
 
 // --- Sub-components ---
+
+const LineChartSVG = ({ data, labels, width, height, isDark, styles }: any) => {
+  const [selectedIndex, setSelectedIndex] = React.useState(5);
+  const max = 2500;
+  const min = 0;
+  const range = max - min;
+  const paddingLeft = 40; 
+  const paddingBottom = 30;
+  const paddingTop = 20;
+  const paddingRight = 20;
+  
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const points = data.map((val: number, i: number) => ({
+    x: paddingLeft + (i * chartWidth / (data.length - 1)),
+    y: paddingTop + chartHeight - ((val - min) / range * chartHeight),
+    val
+  }));
+
+  let pathData = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i++) {
+    const cp1x = points[i - 1].x + (points[i].x - points[i - 1].x) / 2;
+    pathData += ` C ${cp1x} ${points[i - 1].y}, ${cp1x} ${points[i].y}, ${points[i].x} ${points[i].y}`;
+  }
+
+  const fillPath = `${pathData} L ${points[points.length - 1].x} ${paddingTop + chartHeight} L ${points[0].x} ${paddingTop + chartHeight} Z`;
+
+  const selectedPoint = points[selectedIndex];
+
+  return (
+    <View style={{ width, height, position: 'relative' }}>
+      <Svg width={width} height={height}>
+        <Defs>
+          <SvgGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor="#10B981" stopOpacity="0.2" />
+            <Stop offset="1" stopColor="#10B981" stopOpacity="0" />
+          </SvgGradient>
+        </Defs>
+        
+        {/* Horizontal grid lines and Y-axis labels */}
+        {[0, 1000, 2000, 2500].map((val: number) => {
+          const y = paddingTop + chartHeight - ((val - min) / range * chartHeight);
+          return (
+            <G key={val}>
+              <Path 
+                d={`M ${paddingLeft} ${y} L ${width - paddingRight} ${y}`} 
+                stroke={isDark ? "#222" : "#F1F5F9"} 
+                strokeWidth="1" 
+              />
+              <SvgText
+                x={paddingLeft - 10}
+                y={y + 4}
+                fill="#94A3B8"
+                fontSize="10"
+                fontWeight="bold"
+                textAnchor="end"
+              >
+                {val >= 1000 ? `${val/1000}k` : val}
+              </SvgText>
+            </G>
+          );
+        })}
+
+        <Path d={fillPath} fill="url(#grad)" />
+        <Path d={pathData} stroke="#10B981" strokeWidth="3" fill="none" strokeLinecap="round" />
+        
+        {points.map((p: any, i: number) => (
+          <G key={i}>
+            <Circle 
+              cx={p.x} 
+              cy={p.y} 
+              r={i === selectedIndex ? "7" : "5"} 
+              fill={i === selectedIndex ? "#10B981" : "#FFF"} 
+              stroke="#10B981" 
+              strokeWidth="2" 
+            />
+            <Rect
+              x={p.x - 20}
+              y={0}
+              width={40}
+              height={height}
+              fill="transparent"
+              onPress={() => setSelectedIndex(i)}
+            />
+          </G>
+        ))}
+      </Svg>
+
+      {/* Dynamic Tooltip Overlay */}
+      {selectedPoint && (
+        <View style={[
+          styles.tooltipContainer, 
+          { 
+            left: selectedPoint.x - 45, 
+            top: selectedPoint.y - 85,
+            position: 'absolute',
+            zIndex: 10
+          }
+        ]}>
+           <Text style={styles.tooltipDay}>{labels[selectedIndex].toUpperCase()}</Text>
+           <Text style={styles.tooltipCal}>{selectedPoint.val} <Text style={{fontSize: 10}}>KCAL</Text></Text>
+           <View style={styles.tooltipGoalBox}>
+              <Icon name={selectedPoint.val >= 2200 ? "check" : "trending-up"} size={12} color="#10B981" />
+              <Text style={styles.tooltipGoalText}>Goal: 2200</Text>
+           </View>
+        </View>
+      )}
+
+      {/* X-axis Day Labels */}
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        paddingLeft: paddingLeft,
+        paddingRight: paddingRight,
+        marginTop: 5 
+      }}>
+        {labels.map((l: string, i: number) => (
+          <TouchableOpacity key={i} onPress={() => setSelectedIndex(i)} style={{ width: chartWidth / 7, alignItems: 'center' }}>
+            <Text style={{ 
+              fontSize: 10, 
+              color: i === selectedIndex ? '#10B981' : '#94A3B8', 
+              fontWeight: 'bold' 
+            }}>{l}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+};
 
 const MacroCard = ({ label, value, target, progress, color, icon, percent, styles }: any) => (
   <View style={styles.macroCard}>
@@ -191,15 +332,6 @@ const StatBox = ({ label, value, sub, subColor, icon, styles }: any) => (
   </View>
 );
 
-const WeeklyBar = ({ day, height, color, styles }: any) => (
-  <View style={styles.barContainer}>
-    <View style={styles.barTrack}>
-      <View style={[styles.barFillGraph, { height: `${height}%`, backgroundColor: color }]} />
-    </View>
-    <Text style={styles.barDayText}>{day}</Text>
-  </View>
-);
-
 const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   container: { flex: 1, backgroundColor: isDark ? '#000' : '#F4F9FF' },
   header: { padding: 20 },
@@ -242,16 +374,34 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   microBarBg: { height: 4, backgroundColor: isDark ? '#27272A' : '#F1F5F9', borderRadius: 2, marginTop: 10 },
   microBarFill: { height: '100%', borderRadius: 2 },
 
-  weeklyCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 20, padding: 20, marginTop: 10, marginBottom: 10, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
-  chartContainer: { flexDirection: 'row', height: 170, marginTop: 20 },
-  yAxisLabels: { justifyContent: 'space-between', paddingVertical: 20, paddingRight: 10, borderRightWidth: 1, borderRightColor: isDark ? '#27272A' : '#E2E8F0', height: 140 },
-  axisText: { fontSize: 10, color: '#94A3B8', fontWeight: 'bold' },
-  chartBars: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginLeft: 15, paddingBottom: 20, height: 160 },
-  barContainer: { alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
-  barTrack: { width: 14, height: 120, backgroundColor: isDark ? '#27272A' : '#F1F5F9', borderRadius: 7, overflow: 'hidden', justifyContent: 'flex-end' },
-  barFillGraph: { width: '100%', borderRadius: 7 },
-  barDayText: { fontSize: 10, color: isDark ? '#94A3B8' : '#64748B', marginTop: 10, fontWeight: 'bold' },
-  // Recent Meals
+  weeklyCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 24, padding: 20, marginTop: 10, marginBottom: 20, elevation: 2, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
+  chartHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  rowAlign: { flexDirection: 'row', alignItems: 'center' },
+  chartSubtitle: { fontSize: 10, color: '#94A3B8', fontWeight: 'bold', letterSpacing: 1, marginTop: 2 },
+  legendRow: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', marginLeft: 15 },
+  dot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
+  legendText: { fontSize: 12, color: '#94A3B8', fontWeight: '500' },
+  chartWrapper: { position: 'relative', marginTop: 20, alignItems: 'center' },
+  tooltipContainer: {
+    position: 'absolute',
+    backgroundColor: isDark ? '#1F2937' : '#FFF',
+    padding: 10,
+    borderRadius: 12,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDark ? '#374151' : '#F1F5F9',
+    width: 90,
+  },
+  tooltipDay: { fontSize: 10, fontWeight: 'bold', color: '#10B981' },
+  tooltipCal: { fontSize: 16, fontWeight: '800', color: isDark ? '#FFF' : '#1E293B', marginVertical: 2 },
+  tooltipGoalBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#111' : '#F0FDF4', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  tooltipGoalText: { fontSize: 9, color: '#10B981', fontWeight: 'bold', marginLeft: 4 },
+
   recentMealsCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 8, elevation: 1, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
   mealItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: isDark ? '#1A1A1A' : '#F1F5F9' },
   mealIconCircle: { width: 44, height: 44, borderRadius: 12, backgroundColor: isDark ? '#1A1A1A' : '#F8FAFC', justifyContent: 'center', alignItems: 'center' },
@@ -261,7 +411,6 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   mealCal: { fontSize: 16, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
   mealCalLabel: { fontSize: 10, color: '#94A3B8', textAlign: 'right' },
 
-  // Bottom Stats
   bottomStatsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 20 },
   statBox: { width: (width - 55) / 2, backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 20, padding: 16, marginBottom: 15, elevation: 1, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
   statBoxHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },

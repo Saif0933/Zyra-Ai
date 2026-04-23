@@ -13,10 +13,10 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 import { ThemeColors } from '../../../theme/colors';
-import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 

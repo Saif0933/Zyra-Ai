@@ -24,6 +24,9 @@ interface LoginScreenProps {
   route: any;
 }
 
+// import { setAuthToken } from '../api/api';
+// import { useGoogleLogin, useLogin } from '../auth/hook/userAuth';
+
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   const { colors, isDark } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(colors, isDark), [colors, isDark]);
@@ -38,58 +41,28 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  // const loginMutation = useLogin();
+  // const googleLoginMutation = useGoogleLogin();
+
+  const isLoading = false;
 
   React.useEffect(() => {
     GoogleSignin.configure({
       webClientId: '366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com',
-      offlineAccess: false, 
+      offlineAccess: true, 
+      scopes: ['profile', 'email'],
     });
   }, []);
 
   const onGoogleButtonPress = async () => {
-    try {
-      setIsLoading(true);
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const response = await GoogleSignin.signIn();
-      
-      if (response.type !== 'success') {
-        setIsLoading(false);
-        return;
-      }
-
-      const idToken = response.data.idToken;
-
-      if (!idToken) {
-        throw new Error('Google Sign-In: idToken is missing');
-      }
-
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
-      
-      setIsLoading(false);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
-      });
-    } catch (error: any) {
-      console.log('Google Sign-In Error:', error);
-      console.log('Detailed Error:', JSON.stringify(error, null, 2));
-      setIsLoading(false);
-      
-      let message = 'An error occurred during Google Sign-In';
-      if (error.code === '10') {
-        message = 'Developer Error (10): Please check if your SHA-1 fingerprint is added to Firebase Console and matches your keystore.';
-      } else if (error.code === '12500') {
-        message = 'Sign-In Failed (12500): Usually caused by a missing Support Email in Firebase Project Settings or SHA-1 mismatch.';
-      } else if (error.message) {
-        message = error.message;
-      }
-      
-      Alert.alert('Sign-In Error', `Code: ${error.code}\n${message}`);
-    }
+    // Mock Google Sign-In (REVERTED)
+    navigation.reset({
+      index: 0,
+      routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
+    });
   };
 
   const validateEmail = (text: string): boolean => {
@@ -99,7 +72,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
 
   const handleLogin = () => {
     let hasError = false;
-
     setEmailError('');
     setPasswordError('');
 
@@ -114,21 +86,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
     if (!password.trim()) {
       setPasswordError('Password is required');
       hasError = true;
-    } else if (password.length < 6) {
-      setPasswordError('Min 6 characters required');
-      hasError = true;
     }
 
     if (hasError) return;
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
-      });
-    }, 1500);
+    // Mock Login (REVERTED)
+    navigation.reset({
+      index: 0,
+      routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
+    });
   };
 
   return (
@@ -213,7 +179,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
             </View>
 
             <TouchableOpacity style={[styles.loginBtn, { backgroundColor: accentColor }]} onPress={handleLogin}>
-              {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginBtnText}>Sign In</Text>}
+              <Text style={styles.loginBtnText}>Sign In</Text>
             </TouchableOpacity>
 
             <View style={styles.dividerContainer}>
@@ -225,6 +191,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
             <TouchableOpacity style={styles.googleBtn} onPress={onGoogleButtonPress}>
               <Icon name="google" size={20} color={isDark ? '#F1F5F9' : '#0F172A'} />
               <Text style={styles.googleBtnText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register', { role })}>
+              <Text style={styles.registerLinkText}>
+                Don't have an account? <Text style={{ color: accentColor, fontWeight: '800' }}>Sign Up</Text>
+              </Text>
             </TouchableOpacity>
 
           </View>
@@ -407,6 +379,14 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) =>
       color: isDark ? '#F1F5F9' : '#0F172A',
       fontWeight: '600',
       fontSize: 15,
+    },
+    registerLink: {
+      marginTop: 24,
+      alignItems: 'center',
+    },
+    registerLinkText: {
+      color: isDark ? '#94A3B8' : '#64748B',
+      fontSize: 14,
     },
   });
 

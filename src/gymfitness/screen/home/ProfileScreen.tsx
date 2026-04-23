@@ -225,6 +225,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Svg, { Circle, Polyline } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
+// import { useUserStats } from '../../../auth/hook/gymGole/useGym';
+// import { useGetMe } from '../../../auth/hook/userAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -233,6 +235,16 @@ const ProfileScreen = () => {
   const { isDark, toggleTheme } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
   const [isNotifications, setIsNotifications] = React.useState(true);
+
+  // User details from backend (REVERTED TO MOCK)
+  // const { data: meResponse } = useGetMe();
+  // const user = meResponse?.data;
+  const userName = 'Curator';
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  // Stats from backend (REVERTED TO MOCK)
+  // const { data: statsResponse } = useUserStats();
+  const stats = { totalMeals: 48, totalScans: 87 };
 
   const handleLogout = () => {
     Alert.alert(
@@ -274,7 +286,7 @@ const ProfileScreen = () => {
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarWrapper}>
               <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarInitial}>J</Text>
+                <Text style={styles.avatarInitial}>{userInitial}</Text>
               </View>
               <TouchableOpacity style={styles.cameraBtn}>
                 <Icon name="camera-outline" size={16} color="#64748B" />
@@ -283,10 +295,10 @@ const ProfileScreen = () => {
 
             <View style={styles.nameSection}>
               <View style={styles.nameRow}>
-                <Text style={styles.userName}>John Doe</Text>
+                <Text style={styles.userName}>{userName}</Text>
                 <View style={styles.proBadge}><Text style={styles.proText}>PRO</Text></View>
               </View>
-              <Text style={styles.userEmail}>john@example.com</Text>
+              <Text style={styles.userEmail}>curator@example.com</Text>
               <View style={styles.memberRow}>
                 <Icon name="calendar-month-outline" size={14} color="#94A3B8" />
                 <Text style={styles.memberText}>Member since March 2024</Text>
@@ -301,8 +313,8 @@ const ProfileScreen = () => {
 
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
-          <StatBox icon="fire" color="#22C55E" value="342" label="MEALS LOGGED" styles={styles} />
-          <StatBox icon="target" color="#F97316" value="14" label="DAY STREAK" styles={styles} />
+          <StatBox icon="fire" color="#22C55E" value={String(stats.totalMeals)} label="MEALS LOGGED" styles={styles} />
+          <StatBox icon="scan-helper" color="#F97316" value={String(stats.totalScans)} label="TOTAL SCANS" styles={styles} />
           <StatBox icon="trending-up" color="#3B82F6" value="145g" label="AVG PROTEIN" styles={styles} />
           <StatBox icon="medal-outline" color="#A855F7" value="12" label="ACHIEVEMENT" styles={styles} />
         </View>
@@ -402,6 +414,14 @@ const ProfileScreen = () => {
             onValueChange={toggleTheme}
             isDark={isDark}
             styles={styles}
+           />
+           <SettingItem 
+            icon="history" 
+            title="Scan History" 
+            sub="Review your previous food scans" 
+            isDark={isDark} 
+            styles={styles} 
+            onPress={() => navigation.navigate('ScanHistory' as never)}
            />
            <SettingItem 
             icon="heart-outline" 

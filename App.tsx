@@ -1,9 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ThemeProvider } from './src/theme/ThemeContext';
 import RootNavigator from './src/stack/RootNavigator';
+import { ThemeProvider } from './src/theme/ThemeContext';
+
+const queryClient = new QueryClient();
 
 function AppContent() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -23,9 +26,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

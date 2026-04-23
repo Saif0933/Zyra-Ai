@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dimensions,
     SafeAreaView,
@@ -9,11 +9,14 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
+    ActivityIndicator,
+    Alert
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
+// import { useGetGoal, useSetGoal } from '../../../auth/hook/gymGole/useGym';
 
 const { width } = Dimensions.get('window');
 
@@ -22,9 +25,23 @@ const HealthGoalScreen = () => {
   const { isDark } = useTheme();
   const styles = React.useMemo(() => createStyles(isDark), [isDark]);
 
-  const [weightGoal, setWeightGoal] = useState('75');
-  const [dailyCalories, setDailyCalories] = useState('2500');
+  // Backend Hooks (REVERTED)
+  // const { data: goalApiResponse, isLoading } = useGetGoal();
+  // const setGoalMutation = useSetGoal();
+
+  const isLoading = false;
+
+  // Local State
+  const [dailyCalories, setDailyCalories] = useState('2200');
   const [proteinTarget, setProteinTarget] = useState('150');
+  const [carbsTarget, setCarbsTarget] = useState('250');
+  const [fatsTarget, setFatsTarget] = useState('70');
+  const [waterTarget, setWaterTarget] = useState('2500');
+
+  const handleSave = () => {
+    Alert.alert("Success", "Health goals updated successfully! (Mock)");
+    navigation.goBack();
+  };
 
   const goals = [
     { id: '1', title: 'Weight Gain', icon: 'trending-up', color: '#3B82F6', active: true },
@@ -32,6 +49,14 @@ const HealthGoalScreen = () => {
     { id: '3', title: 'Maintenance', icon: 'scale-balance', color: '#F59E0B', active: false },
     { id: '4', title: 'Build Muscle', icon: 'arm-flex', color: '#EF4444', active: false },
   ];
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#22C55E" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,7 +71,7 @@ const HealthGoalScreen = () => {
           <Icon name="chevron-left" size={30} color={isDark ? '#FFF' : '#1E293B'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Health Goals</Text>
-        <TouchableOpacity style={styles.doneBtn}>
+        <TouchableOpacity style={styles.doneBtn} onPress={handleSave} disabled={false}>
           <Text style={styles.doneText}>Save</Text>
         </TouchableOpacity>
       </View>
@@ -65,9 +90,9 @@ const HealthGoalScreen = () => {
                 <Text style={styles.bannerTitle}>Body Recomposition</Text>
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarBg}>
-                        <View style={[styles.progressBarFill, { width: '65%' }]} />
+                        <View style={[styles.progressBarFill, { width: '100%' }]} />
                     </View>
-                    <Text style={styles.progressText}>65% completed</Text>
+                    <Text style={styles.progressText}>All targets synchronized</Text>
                 </View>
             </View>
             <Icon name="bullseye-arrow" size={60} color="rgba(255,255,255,0.2)" style={styles.bannerIcon} />
@@ -98,24 +123,7 @@ const HealthGoalScreen = () => {
 
         <Text style={styles.sectionTitle}>Set your targets</Text>
         
-        {/* Target Cards */}
-        <View style={styles.targetCard}>
-            <View style={styles.targetHeader}>
-                <Icon name="weight-kilogram" size={24} color="#3B82F6" />
-                <Text style={styles.targetTitle}>Target Weight</Text>
-            </View>
-            <View style={styles.inputWrapper}>
-                <TextInput 
-                    style={styles.input} 
-                    value={weightGoal} 
-                    onChangeText={setWeightGoal}
-                    keyboardType="numeric"
-                    placeholderTextColor="#94A3B8"
-                />
-                <Text style={styles.unit}>kg</Text>
-            </View>
-        </View>
-
+        {/* Calorie Card */}
         <View style={styles.targetCard}>
             <View style={styles.targetHeader}>
                 <Icon name="lightning-bolt" size={24} color="#F59E0B" />
@@ -133,6 +141,7 @@ const HealthGoalScreen = () => {
             </View>
         </View>
 
+        {/* Protein Card */}
         <View style={styles.targetCard}>
             <View style={styles.targetHeader}>
                 <Icon name="food-apple" size={24} color="#EF4444" />
@@ -147,6 +156,60 @@ const HealthGoalScreen = () => {
                     placeholderTextColor="#94A3B8"
                 />
                 <Text style={styles.unit}>g/day</Text>
+            </View>
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {/* Carbs Card */}
+            <View style={[styles.targetCard, { width: (width - 55) / 2 }]}>
+                <View style={styles.targetHeader}>
+                    <Icon name="corn" size={20} color="#F97316" />
+                    <Text style={[styles.targetTitle, { fontSize: 13, marginLeft: 8 }]}>Carbs</Text>
+                </View>
+                <View style={[styles.inputWrapper, { borderBottomWidth: 1 }]}>
+                    <TextInput 
+                        style={[styles.input, { fontSize: 20 }]} 
+                        value={carbsTarget} 
+                        onChangeText={setCarbsTarget}
+                        keyboardType="numeric"
+                    />
+                    <Text style={styles.unit}>g</Text>
+                </View>
+            </View>
+
+            {/* Fats Card */}
+            <View style={[styles.targetCard, { width: (width - 55) / 2 }]}>
+                <View style={styles.targetHeader}>
+                    <Icon name="water" size={20} color="#0EA5E9" />
+                    <Text style={[styles.targetTitle, { fontSize: 13, marginLeft: 8 }]}>Fats</Text>
+                </View>
+                <View style={[styles.inputWrapper, { borderBottomWidth: 1 }]}>
+                    <TextInput 
+                        style={[styles.input, { fontSize: 20 }]} 
+                        value={fatsTarget} 
+                        onChangeText={setFatsTarget}
+                        keyboardType="numeric"
+                    />
+                    <Text style={styles.unit}>g</Text>
+                </View>
+            </View>
+        </View>
+
+        {/* Water Card */}
+        <View style={styles.targetCard}>
+            <View style={styles.targetHeader}>
+                <Icon name="cup-water" size={24} color="#3B82F6" />
+                <Text style={styles.targetTitle}>Daily Water Goal</Text>
+            </View>
+            <View style={styles.inputWrapper}>
+                <TextInput 
+                    style={styles.input} 
+                    value={waterTarget} 
+                    onChangeText={setWaterTarget}
+                    keyboardType="numeric"
+                    placeholderTextColor="#94A3B8"
+                />
+                <Text style={styles.unit}>ml</Text>
             </View>
         </View>
 

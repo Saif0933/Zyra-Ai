@@ -1,4 +1,3 @@
-
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
@@ -11,16 +10,35 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Path, G, Defs, LinearGradient as SvgGradient, Stop, Rect, Text as SvgText } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
+interface BeautyScan {
+  id: string;
+  productName: string;
+  result: string;
+  safetyScore: number;
+  scanType: string;
+  createdAt: string;
+}
+
 const BeautyDashboard = () => {
   const navigation = useNavigation<any>();
   const { isDark } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
+
+  const latestMetrics = { hydration: 68, phLevel: 5.5, oiliness: 50 };
+  const recentScans: BeautyScan[] = [
+    { id: '1', productName: 'Glow Serum', result: 'Safe', safetyScore: 92, scanType: 'PRODUCT', createdAt: new Date().toISOString() },
+    { id: '2', productName: 'Face Wash', result: 'Mild Irritant', safetyScore: 65, scanType: 'PRODUCT', createdAt: new Date().toISOString() },
+  ];
+  
+  const completedSteps = 4;
+  const totalSteps = 7;
+  const consistency = Math.round((completedSteps / totalSteps) * 100);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -29,7 +47,7 @@ const BeautyDashboard = () => {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.mainTitle}>Hi, Priya ✨</Text>
+          <Text style={styles.mainTitle}>Hi there! ✨</Text>
           <Text style={styles.subTitle}>Track your daily skincare routine and progress</Text>
         </View>
         <TouchableOpacity
@@ -51,24 +69,26 @@ const BeautyDashboard = () => {
               <Circle cx="90" cy="90" r="75" stroke={isDark ? '#27272A' : '#F1F5F9'} strokeWidth="12" fill="none" />
               <Circle
                 cx="90" cy="90" r="75" stroke="#F43F5E" strokeWidth="12"
-                fill="none" strokeDasharray="471" strokeDashoffset="71"
+                fill="none" strokeDasharray="471" strokeDashoffset={471 - (471 * (consistency / 100))}
                 strokeLinecap="round" transform="rotate(-90 90 90)"
               />
             </Svg>
             <View style={styles.calorieInner}>
               <Icon name="shimmer" size={24} color="#F43F5E" />
-              <Text style={styles.calNumber}>85%</Text>
+              <Text style={styles.calNumber}>{consistency}%</Text>
               <Text style={styles.calTotal}>Consistency</Text>
             </View>
           </View>
-          <Text style={styles.remText}>6 of 7 steps completed</Text>
-          <Text style={styles.onTrackText}>Your skin is loving your routine! 🌸</Text>
+          <Text style={styles.remText}>{completedSteps} of {totalSteps} steps completed</Text>
+          <Text style={styles.onTrackText}>
+            {consistency > 80 ? 'Your skin is loving your routine! 🌸' : 'Keep going, your skin will thank you! ✨'}
+          </Text>
         </View>
 
         {/* Skin Metric Cards */}
-        <MetricCard label="HYDRATION" value="68" target="80%" progress={0.85} color="#0EA5E9" icon="water-percent" percent="85%" styles={styles} isDark={isDark} />
-        <MetricCard label="pH BALANCE" value="5.5" target="Ideal: 4.5–5.5" progress={0.9} color="#10B981" icon="flask-outline" percent="90%" styles={styles} isDark={isDark} />
-        <MetricCard label="OILINESS" value="Normal" target="Controlled level" progress={0.7} color="#F59E0B" icon="face-woman-shimmer" percent="70%" styles={styles} isDark={isDark} />
+        <MetricCard label="HYDRATION" value={latestMetrics.hydration} target="80%" progress={latestMetrics.hydration / 100} color="#0EA5E9" icon="water-percent" percent={`${latestMetrics.hydration}%`} styles={styles} isDark={isDark} />
+        <MetricCard label="pH BALANCE" value={latestMetrics.phLevel} target="Ideal: 4.5–5.5" progress={latestMetrics.phLevel / 7} color="#10B981" icon="flask-outline" percent={`${Math.round((latestMetrics.phLevel / 5.5) * 100)}%`} styles={styles} isDark={isDark} />
+        <MetricCard label="OILINESS" value={latestMetrics.oiliness > 70 ? 'Oily' : latestMetrics.oiliness > 30 ? 'Normal' : 'Dry'} target="Controlled level" progress={latestMetrics.oiliness / 100} color="#F59E0B" icon="face-woman-shimmer" percent={`${latestMetrics.oiliness}%`} styles={styles} isDark={isDark} />
 
         {/* Ingredients Tracker */}
         <View style={styles.sectionRow}>
@@ -83,26 +103,40 @@ const BeautyDashboard = () => {
           <MicroGridItem label="Retinol"         val="0.025% / 0.05%" color="#A855F7" progress={0.5}  styles={styles} />
         </View>
 
-        {/* Weekly Routine Overview */}
+        {/* PERFORMANCE ANALYTICS SECTION */}
         <View style={styles.weeklyCard}>
-          <Text style={styles.sectionHeader}>Weekly Routine Overview</Text>
-
-          <View style={styles.chartContainer}>
-            <View style={styles.yAxisLabels}>
-              <Text style={styles.axisText}>Full</Text>
-              <Text style={styles.axisText}>Half</Text>
-              <Text style={styles.axisText}>0</Text>
+          <View style={styles.chartHeaderRow}>
+            <View style={styles.rowAlign}>
+              <Icon name="chart-line" size={22} color="#F43F5E" />
+              <View style={{marginLeft: 10}}>
+                <Text style={styles.sectionHeader}>Skin Health Analytics</Text>
+                <Text style={styles.chartSubtitle}>WEEKLY SKIN SCORE VS TARGET</Text>
+              </View>
             </View>
+          </View>
 
-            <View style={styles.chartBars}>
-              <WeeklyBar day="Mon" height={90}  color="#F43F5E" styles={styles} />
-              <WeeklyBar day="Tue" height={100} color="#F43F5E" styles={styles} />
-              <WeeklyBar day="Wed" height={60}  color="#F59E0B" styles={styles} />
-              <WeeklyBar day="Thu" height={100} color="#F43F5E" styles={styles} />
-              <WeeklyBar day="Fri" height={80}  color="#F43F5E" styles={styles} />
-              <WeeklyBar day="Sat" height={50}  color="#F59E0B" styles={styles} />
-              <WeeklyBar day="Sun" height={70}  color="#F43F5E" styles={styles} />
-            </View>
+          {/* Legend Row */}
+          <View style={styles.legendRow}>
+              <View style={styles.legendItem}>
+                <View style={[styles.dot, {backgroundColor: '#F43F5E'}]} />
+                <Text style={styles.legendText}>Skin Score</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.dot, {backgroundColor: '#E2E8F0'}]} />
+                <Text style={styles.legendText}>Target (90)</Text>
+              </View>
+          </View>
+
+          <View style={styles.chartWrapper}>
+            <LineChartSVG 
+               data={[82, 85, 78, 92, 88, 95, 90]}
+               labels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+               height={220}
+               width={width - 40}
+               isDark={isDark}
+               styles={styles}
+               color="#F43F5E"
+            />
           </View>
         </View>
 
@@ -113,10 +147,13 @@ const BeautyDashboard = () => {
         </View>
 
         <View style={styles.recentMealsCard}>
-          <ProductItem name="Glow Vit-C Serum"    time="9:00 AM"  score="92%" icon="bottle-tonic-plus"   styles={styles} />
-          <ProductItem name="Gentle Foam Cleanser" time="8:30 AM"  score="88%" icon="water-outline"        styles={styles} />
-          <ProductItem name="SPF 50+ Sunscreen"    time="8:00 AM"  score="95%" icon="white-balance-sunny"  styles={styles} />
-          <ProductItem name="Matte Foundation"     time="Yesterday" score="45%" icon="brush-outline"        isLast styles={styles} />
+          {recentScans.length > 0 ? (
+            recentScans.map((scan: BeautyScan, idx: number) => (
+              <ProductItem key={scan.id} name={scan.productName} time={new Date(scan.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} score={`${scan.safetyScore}%`} icon={scan.scanType === 'PRODUCT' ? "bottle-tonic-plus" : "face-man-shimmer"} isLast={idx === recentScans.length - 1} styles={styles} />
+            ))
+          ) : (
+            <Text style={{ padding: 20, textAlign: 'center', color: '#94A3B8' }}>No recent scans</Text>
+          )}
         </View>
 
         {/* Bottom Stats Grid */}
@@ -134,6 +171,88 @@ const BeautyDashboard = () => {
 };
 
 // --- Sub-components ---
+
+const LineChartSVG = ({ data, labels, width, height, isDark, styles, color }: any) => {
+  const [selectedIndex, setSelectedIndex] = React.useState(5);
+  const max = 100;
+  const min = 0;
+  const range = max - min;
+  const paddingLeft = 40; 
+  const paddingBottom = 30;
+  const paddingTop = 20;
+  const paddingRight = 20;
+  
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const points = data.map((val: number, i: number) => ({
+    x: paddingLeft + (i * chartWidth / (data.length - 1)),
+    y: paddingTop + chartHeight - ((val - min) / range * chartHeight),
+    val
+  }));
+
+  let pathData = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i++) {
+    const cp1x = points[i - 1].x + (points[i].x - points[i - 1].x) / 2;
+    pathData += ` C ${cp1x} ${points[i - 1].y}, ${cp1x} ${points[i].y}, ${points[i].x} ${points[i].y}`;
+  }
+
+  const fillPath = `${pathData} L ${points[points.length - 1].x} ${paddingTop + chartHeight} L ${points[0].x} ${paddingTop + chartHeight} Z`;
+
+  const selectedPoint = points[selectedIndex];
+
+  return (
+    <View style={{ width, height, position: 'relative' }}>
+      <Svg width={width} height={height}>
+        <Defs>
+          <SvgGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor={color} stopOpacity="0.2" />
+            <Stop offset="1" stopColor={color} stopOpacity="0" />
+          </SvgGradient>
+        </Defs>
+        
+        {[0, 50, 80, 100].map((val: number) => {
+          const y = paddingTop + chartHeight - ((val - min) / range * chartHeight);
+          return (
+            <G key={val}>
+              <Path d={`M ${paddingLeft} ${y} L ${width - paddingRight} ${y}`} stroke={isDark ? "#222" : "#F1F5F9"} strokeWidth="1" />
+              <SvgText x={paddingLeft - 10} y={y + 4} fill="#94A3B8" fontSize="10" fontWeight="bold" textAnchor="end">{val}</SvgText>
+            </G>
+          );
+        })}
+
+        <Path d={fillPath} fill="url(#grad)" />
+        <Path d={pathData} stroke={color} strokeWidth="3" fill="none" strokeLinecap="round" />
+        
+        {points.map((p: any, i: number) => (
+          <G key={i}>
+            <Circle cx={p.x} cy={p.y} r={i === selectedIndex ? "7" : "5"} fill={i === selectedIndex ? color : "#FFF"} stroke={color} strokeWidth="2" />
+            <Rect x={p.x - 20} y={0} width={40} height={height} fill="transparent" onPress={() => setSelectedIndex(i)} />
+          </G>
+        ))}
+      </Svg>
+
+      {selectedPoint && (
+        <View style={[styles.tooltipContainer, { left: selectedPoint.x - 45, top: selectedPoint.y - 85, position: 'absolute', zIndex: 10 }]}>
+           <Text style={styles.tooltipDay}>{labels[selectedIndex].toUpperCase()}</Text>
+           <Text style={styles.tooltipCal}>{selectedPoint.val} <Text style={{fontSize: 10}}>SCORE</Text></Text>
+           <View style={[styles.tooltipGoalBox, { backgroundColor: isDark ? '#111' : '#FFF1F2' }]}>
+              <Icon name={selectedPoint.val >= 90 ? "star" : "shimmer"} size={12} color="#F43F5E" />
+              <Text style={[styles.tooltipGoalText, { color: '#F43F5E' }]}>Target: 90</Text>
+           </View>
+        </View>
+      )}
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: paddingLeft, paddingRight: paddingRight, marginTop: 5 }}>
+        {labels.map((l: string, i: number) => (
+          <TouchableOpacity key={i} onPress={() => setSelectedIndex(i)} style={{ width: chartWidth / 7, alignItems: 'center' }}>
+            <Text style={{ fontSize: 10, color: i === selectedIndex ? color : '#94A3B8', fontWeight: 'bold' }}>{l}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+};
 
 const MetricCard = ({ label, value, target, progress, color, icon, percent, styles }: any) => (
   <View style={styles.macroCard}>
@@ -194,15 +313,6 @@ const StatBox = ({ label, value, sub, subColor, icon, styles }: any) => (
   </View>
 );
 
-const WeeklyBar = ({ day, height, color, styles }: any) => (
-  <View style={styles.barContainer}>
-    <View style={styles.barTrack}>
-      <View style={[styles.barFillGraph, { height: `${height}%`, backgroundColor: color }]} />
-    </View>
-    <Text style={styles.barDayText}>{day}</Text>
-  </View>
-);
-
 const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   container: { flex: 1, backgroundColor: isDark ? '#000' : '#FFF9FA' },
   header: { padding: 20 },
@@ -245,15 +355,33 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   microBarBg: { height: 4, backgroundColor: isDark ? '#27272A' : '#F1F5F9', borderRadius: 2, marginTop: 10 },
   microBarFill: { height: '100%', borderRadius: 2 },
 
-  weeklyCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 20, padding: 20, marginTop: 10, marginBottom: 10, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
-  chartContainer: { flexDirection: 'row', height: 170, marginTop: 20 },
-  yAxisLabels: { justifyContent: 'space-between', paddingVertical: 20, paddingRight: 10, borderRightWidth: 1, borderRightColor: isDark ? '#27272A' : '#E2E8F0', height: 140 },
-  axisText: { fontSize: 10, color: '#94A3B8', fontWeight: 'bold' },
-  chartBars: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginLeft: 15, paddingBottom: 20, height: 160 },
-  barContainer: { alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
-  barTrack: { width: 14, height: 120, backgroundColor: isDark ? '#27272A' : '#F1F5F9', borderRadius: 7, overflow: 'hidden', justifyContent: 'flex-end' },
-  barFillGraph: { width: '100%', borderRadius: 7 },
-  barDayText: { fontSize: 10, color: isDark ? '#94A3B8' : '#64748B', marginTop: 10, fontWeight: 'bold' },
+  weeklyCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 24, padding: 20, marginTop: 10, marginBottom: 20, elevation: 2, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
+  chartHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  rowAlign: { flexDirection: 'row', alignItems: 'center' },
+  chartSubtitle: { fontSize: 10, color: '#94A3B8', fontWeight: 'bold', letterSpacing: 1, marginTop: 2 },
+  legendRow: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', marginLeft: 15 },
+  dot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
+  legendText: { fontSize: 12, color: '#94A3B8', fontWeight: '500' },
+  chartWrapper: { position: 'relative', marginTop: 20, alignItems: 'center' },
+  tooltipContainer: {
+    position: 'absolute',
+    backgroundColor: isDark ? '#1F2937' : '#FFF',
+    padding: 10,
+    borderRadius: 12,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDark ? '#374151' : '#F1F5F9',
+    width: 90,
+  },
+  tooltipDay: { fontSize: 10, fontWeight: 'bold', color: '#F43F5E' },
+  tooltipCal: { fontSize: 16, fontWeight: '800', color: isDark ? '#FFF' : '#1E293B', marginVertical: 2 },
+  tooltipGoalBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#111' : '#FFF1F2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  tooltipGoalText: { fontSize: 9, color: '#F43F5E', fontWeight: 'bold', marginLeft: 4 },
 
   recentMealsCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 8, elevation: 1, borderWidth: isDark ? 1 : 0, borderColor: '#333' },
   mealItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: isDark ? '#1A1A1A' : '#F1F5F9' },

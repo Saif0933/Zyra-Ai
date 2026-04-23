@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
+// import { useLogRoutine } from '../../../auth/hook/beauticare/useBeauticare';
 
 const { width } = Dimensions.get('window');
 
@@ -55,6 +56,14 @@ const RoutinePlanner = () => {
 
     setTimeout(() => {
       setIsWorking(false);
+      
+      // Log routine completion/generation to backend (REVERTED)
+      /*
+      logRoutineMutation.mutate({
+        stepsCompleted: 4, // Morning routine steps
+        totalSteps: 7,
+      });
+      */
     }, 2000);
   };
 

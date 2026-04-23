@@ -15,6 +15,7 @@ import {
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
+// import { useSaveProductScan } from '../../../auth/hook/beauticare/useBeauticare';
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +25,8 @@ const BeautiCareScanScreen = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+
+  // const saveScanMutation = useSaveProductScan();
 
   const handleCapture = async () => {
     const result = await launchCamera({ mediaType: 'photo', quality: 0.8 });
@@ -44,9 +47,9 @@ const BeautiCareScanScreen = () => {
     setIsAnalyzing(true);
     setAnalysisResult(null);
 
+    // Mock AI Analysis for now
     setTimeout(() => {
-      setIsAnalyzing(false);
-      setAnalysisResult({
+      const result = {
         name: 'Glow Vit-C Serum',
         safetyScore: 92,
         harmLevel: 'Low',
@@ -55,7 +58,10 @@ const BeautiCareScanScreen = () => {
         benefit: 'Brightening & Anti-aging',
         ph: '3.5',
         rating: 'Safe',
-      });
+      };
+
+      setIsAnalyzing(false);
+      setAnalysisResult(result);
     }, 2000);
   };
 
