@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import {
   Dimensions,
   Platform,
@@ -8,10 +8,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Animated,
+  Easing
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../theme/ThemeContext';
-import { ThemeColors } from '../theme/colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,27 +24,40 @@ interface SelectRoleScreenProps {
 const roles = [
   {
     id: 'healthai',
-    title: 'Health AI',
-    subtitle: 'FITNESS & NUTRITION',
-    description: 'Track your vitals, nutrition, and fitness progress with AI-powered insights.',
-    icon: 'heart-pulse',
-    color: '#6366F1',
+    title: 'FITNESS & GYM',
+    subtitle: 'Health AI',
+    description: 'Track your body, calories, and workouts with professional precision.',
+    icon: 'arm-flex',
+    colors: ['#22C55E', '#16A34A'], // Matched Gym Home Color
+    lightColors: ['#F0FDF4', '#DCFCE7'],
   },
   {
     id: 'beauticare',
-    title: 'BeautiCare',
-    subtitle: 'SKIN & BEAUTY',
-    description: 'Analyze your skin health, track beauty routines, and get personalized care tips.',
+    title: 'SKIN & BEAUTY',
+    subtitle: 'BeautiCare',
+    description: 'AI Skin analysis and beauty routines for your best glow.',
     icon: 'face-woman-shimmer',
-    color: '#F43F5E',
+    colors: ['#F43F5E', '#BE123C'], // Matched Beauty Home Color
+    lightColors: ['#FFF1F2', '#FFE4E6'],
   },
 ];
 
 const SelectRoleScreen: React.FC<SelectRoleScreenProps> = ({ navigation }) => {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  
+  // Animation Values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideIn = useRef(new Animated.Value(50)).current;
 
-  const styles = useMemo(() => createDynamicStyles(colors, isDark), [colors, isDark]);
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      Animated.timing(slideIn, { toValue: 0, duration: 600, easing: Easing.out(Easing.back(1)), useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const styles = useMemo(() => createDynamicStyles(isDark), [isDark]);
 
   const handleContinue = () => {
     if (selectedRole) {
@@ -51,304 +66,214 @@ const SelectRoleScreen: React.FC<SelectRoleScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
-
-      <View style={styles.bgDecor1} />
-      <View style={styles.bgDecor2} />
-
-      <View style={styles.contentWrapper}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logoDot} />
-            <Text style={styles.logoText}>SYMBOSYS</Text>
-          </View>
-          <View style={styles.versionBadge}>
-            <Text style={styles.versionText}>v1.0</Text>
-          </View>
+    <View style={styles.container}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
+      
+      <View style={styles.topHeader}>
+        <View style={styles.logoBox}>
+          <Text style={styles.logo}>SYMBOSYS</Text>
         </View>
+        <Text style={styles.welcomeText}>Choose your focus</Text>
+      </View>
 
-        {/* Hero Section */}
-        <View style={styles.heroSection}>
-          <Text style={styles.tagline}>SELECT YOUR EXPERIENCE</Text>
-          <Text style={styles.heroTitle}>Choose Your{'\n'}Role</Text>
-          <Text style={styles.heroSub}>
-            Select the module that best fits your needs. You can switch roles later in settings.
-          </Text>
-        </View>
-
-        {/* Cards */}
-        <View style={styles.cardsContainer}>
-          {roles.map((role) => {
-            const isSelected = selectedRole === role.id;
-
-            return (
-              <TouchableOpacity
-                key={role.id}
-                activeOpacity={0.9}
-                style={[
-                  styles.roleCard,
-                  isSelected && { borderColor: role.color, backgroundColor: isDark ? '#1E293B' : '#F1F5F9' },
-                ]}
-                onPress={() => setSelectedRole(role.id)}
+      <Animated.View style={[styles.tileContainer, { opacity: fadeAnim, transform: [{ translateY: slideIn }] }]}>
+        {roles.map((role) => {
+          const isSelected = selectedRole === role.id;
+          return (
+            <TouchableOpacity
+              key={role.id}
+              activeOpacity={0.9}
+              onPress={() => setSelectedRole(role.id)}
+              style={styles.roleWrapper}
+            >
+              <LinearGradient
+                colors={isSelected ? role.colors : (isDark ? ['#1E293B', '#1E293B'] : role.lightColors)}
+                style={[styles.tile, isSelected && styles.activeTile]}
               >
-                {/* Icon */}
-                <View
-                  style={[
-                    styles.roleIconContainer,
-                    { backgroundColor: isSelected ? role.color : isDark ? '#334155' : '#E2E8F0' },
-                  ]}
-                >
-                  <Icon
-                    name={role.icon}
-                    size={26}
-                    color={isSelected ? '#FFFFFF' : isDark ? '#94A3B8' : '#64748B'}
-                  />
+                {/* Floating Icon Background */}
+                <View style={styles.iconGhost}>
+                  <Icon name={role.icon} size={150} color={isSelected ? 'rgba(255,255,255,0.1)' : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')} />
                 </View>
 
-                {/* Content */}
-                <View style={styles.roleContent}>
-                  <View style={styles.titleRow}>
-                    <Text style={styles.roleTitle}>{role.title}</Text>
-                    <Text
-                      style={[
-                        styles.roleSubtitle,
-                        { color: isSelected ? role.color : '#94A3B8' },
-                      ]}
-                    >
-                      {role.subtitle}
-                    </Text>
+                <View style={styles.tileContent}>
+                  <View style={[styles.iconCircle, { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : (isDark ? '#334155' : '#FFF') }]}>
+                    <Icon name={role.icon} size={32} color={isSelected ? '#FFF' : role.colors[0]} />
                   </View>
-                  <Text style={styles.roleDesc} numberOfLines={2}>
+                  <Text style={[styles.tileSubtitle, { color: isSelected ? 'rgba(255,255,255,0.8)' : '#94A3B8' }]}>
+                    {role.subtitle.toUpperCase()}
+                  </Text>
+                  <Text style={[styles.tileTitle, { color: isSelected ? '#FFF' : (isDark ? '#FFF' : '#1E293B') }]}>
+                    {role.title}
+                  </Text>
+                  <Text style={[styles.tileDesc, { color: isSelected ? 'rgba(255,255,255,0.7)' : '#64748B' }]} numberOfLines={2}>
                     {role.description}
                   </Text>
                 </View>
 
-                {/* Radio */}
-                <View
-                  style={[
-                    styles.radioOuter,
-                    isSelected && { borderColor: role.color },
-                  ]}
-                >
-                  {isSelected && (
-                    <View
-                      style={[
-                        styles.radioInner,
-                        { backgroundColor: role.color },
-                      ]}
-                    />
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
+                {isSelected && (
+                  <View style={styles.selectedBadge}>
+                    <Icon name="check-circle" size={24} color="#FFF" />
+                  </View>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          );
+        })}
+      </Animated.View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
+      <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={[
-            styles.continueBtn,
-            !selectedRole && styles.continueBtnDisabled,
-            selectedRole ? { backgroundColor: colors.primary } : null,
-          ]}
           onPress={handleContinue}
           disabled={!selectedRole}
+          activeOpacity={0.8}
+          style={[styles.continueBtn, !selectedRole && styles.disabledBtn]}
         >
-          <Text
-            style={[
-              styles.continueBtnText,
-              !selectedRole && styles.continueBtnTextDisabled,
-            ]}
+          <LinearGradient
+            colors={selectedRole ? (selectedRole === 'healthai' ? ['#22C55E', '#16A34A'] : ['#F43F5E', '#BE123C']) : ['#E2E8F0', '#E2E8F0']}
+            style={styles.btnGradient}
           >
-            Continue
-          </Text>
-          <Icon
-            name="arrow-right"
-            size={20}
-            color={selectedRole ? '#FFFFFF' : isDark ? '#475569' : '#94A3B8'}
-          />
+            <Text style={[styles.btnText, !selectedRole && { color: '#94A3B8' }]}>Get Started</Text>
+            <Icon name="arrow-right" size={20} color={selectedRole ? '#FFF' : '#94A3B8'} />
+          </LinearGradient>
         </TouchableOpacity>
-
-        <Text style={styles.footerLegal}>
-          By continuing, you agree to our{' '}
-          <Text style={styles.linkText}>Terms of Service</Text>
-        </Text>
+        <Text style={styles.footerText}>Already have an account? <Text style={styles.signIn} onPress={() => navigation.navigate('Login')}>Sign In</Text></Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
-const createDynamicStyles = (colors: ThemeColors, isDark: boolean) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
-    },
-    contentWrapper: {
-      flex: 1,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    },
-    bgDecor1: {
-      position: 'absolute',
-      top: -50,
-      right: -50,
-      width: 200,
-      height: 200,
-      borderRadius: 100,
-      backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.08)',
-    },
-    bgDecor2: {
-      position: 'absolute',
-      top: height * 0.4,
-      left: -80,
-      width: 160,
-      height: 160,
-      borderRadius: 80,
-      backgroundColor: isDark ? 'rgba(244, 63, 94, 0.1)' : 'rgba(244, 63, 94, 0.05)',
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: 24,
-      marginTop: 20,
-    },
-    logoContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    logoDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: '#6366F1',
-      marginRight: 8,
-    },
-    logoText: {
-      fontSize: 12,
-      fontWeight: '900',
-      color: isDark ? '#F1F5F9' : '#0F172A',
-      letterSpacing: 2,
-    },
-    versionBadge: {
-      backgroundColor: isDark ? '#1E293B' : '#E2E8F0',
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 6,
-    },
-    versionText: {
-      fontSize: 10,
-      fontWeight: 'bold',
-      color: isDark ? '#94A3B8' : '#64748B',
-    },
-    heroSection: {
-      paddingHorizontal: 24,
-      marginTop: 40,
-      marginBottom: 30,
-    },
-    tagline: {
-      fontSize: 11,
-      fontWeight: '800',
-      color: '#6366F1',
-      marginBottom: 8,
-    },
-    heroTitle: {
-      fontSize: 38,
-      fontWeight: '800',
-      color: isDark ? '#F1F5F9' : '#0F172A',
-    },
-    heroSub: {
-      fontSize: 15,
-      color: isDark ? '#94A3B8' : '#475569',
-    },
-    cardsContainer: {
-      paddingHorizontal: 24,
-    },
-    roleCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
-      borderRadius: 24,
-      padding: 16,
-      marginBottom: 16,
-      borderWidth: 2,
-      borderColor: 'transparent',
-    },
-    roleIconContainer: {
-      width: 56,
-      height: 56,
-      borderRadius: 18,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    roleContent: {
-      flex: 1,
-      marginLeft: 16,
-    },
-    titleRow: {
-      marginBottom: 4,
-    },
-    roleTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: isDark ? '#F1F5F9' : '#0F172A',
-    },
-    roleSubtitle: {
-      fontSize: 10,
-      fontWeight: '800',
-    },
-    roleDesc: {
-      fontSize: 12,
-      color: isDark ? '#94A3B8' : '#64748B',
-    },
-    radioOuter: {
-      width: 20,
-      height: 20,
-      borderRadius: 10,
-      borderWidth: 2,
-      borderColor: isDark ? '#334155' : '#CBD5F5',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    radioInner: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-    },
-    footer: {
-      paddingHorizontal: 24,
-      paddingBottom: 30,
-    },
-    continueBtn: {
-      height: 60,
-      borderRadius: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row',
-      gap: 10,
-      backgroundColor: '#6366F1',
-    },
-    continueBtnDisabled: {
-      backgroundColor: isDark ? '#1E293B' : '#E2E8F0',
-    },
-    continueBtnText: {
-      color: '#FFFFFF',
-      fontWeight: '700',
-    },
-    continueBtnTextDisabled: {
-      color: isDark ? '#475569' : '#94A3B8',
-    },
-    footerLegal: {
-      color: '#64748B',
-      textAlign: 'center',
-      marginTop: 20,
-    },
-    linkText: {
-      color: '#6366F1',
-    },
-  });
+const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: isDark ? '#000' : '#FFF',
+  },
+  topHeader: {
+    marginTop: height * 0.08,
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+  logoBox: {
+    backgroundColor: isDark ? '#111' : '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  logo: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: isDark ? '#FFF' : '#000',
+    letterSpacing: 4,
+  },
+  welcomeText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: isDark ? '#FFF' : '#1E293B',
+    textAlign: 'center',
+  },
+  tileContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    gap: 15,
+  },
+  roleWrapper: {
+    height: (height * 0.5) / 2,
+    borderRadius: 32,
+    overflow: 'hidden',
+  },
+  tile: {
+    flex: 1,
+    padding: 25,
+    borderRadius: 32,
+    justifyContent: 'center',
+  },
+  activeTile: {
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+  },
+  iconGhost: {
+    position: 'absolute',
+    right: -20,
+    bottom: -20,
+    transform: [{ rotate: '-15deg' }],
+  },
+  tileContent: {
+    zIndex: 1,
+  },
+  iconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    elevation: 2,
+  },
+  tileSubtitle: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1,
+    marginBottom: 5,
+  },
+  tileTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  tileDesc: {
+    fontSize: 14,
+    marginTop: 8,
+    lineHeight: 20,
+    width: '80%',
+  },
+  selectedBadge: {
+    position: 'absolute',
+    top: 25,
+    right: 25,
+  },
+  bottomSection: {
+    padding: 30,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 30,
+  },
+  continueBtn: {
+    height: 64,
+    borderRadius: 22,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  disabledBtn: {
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  btnGradient: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  btnText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFF',
+  },
+  footerText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 14,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  signIn: {
+    color: '#22C55E', // Matched Gym Green for link
+    fontWeight: 'bold',
+  },
+});
 
 export default SelectRoleScreen;
