@@ -1,6 +1,6 @@
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,381 +13,299 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  Animated,
+  Easing,
+  Dimensions
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../theme/ThemeContext';
-import { ThemeColors } from '../theme/colors';
+
+const { width, height } = Dimensions.get('window');
 
 interface LoginScreenProps {
   navigation: any;
   route: any;
 }
 
-// import { setAuthToken } from '../api/api';
-// import { useGoogleLogin, useLogin } from '../auth/hook/userAuth';
-
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
-  const { colors, isDark } = useTheme();
-  const styles = React.useMemo(() => createDynamicStyles(colors, isDark), [colors, isDark]);
-
+  const { isDark } = useTheme();
   const role: string = route?.params?.role ?? 'healthai';
   const isHealthAi = role === 'healthai';
 
+  // Theme Constants
+  const accent = isHealthAi ? '#22C55E' : '#F43F5E';
+  const themeGradients = isHealthAi ? ['#22C55E', '#10B981'] : ['#F43F5E', '#E11D48'];
   const roleName = isHealthAi ? 'Health AI' : 'BeautiCare';
-  const roleIcon = isHealthAi ? 'heart-pulse' : 'face-woman-shimmer';
-  const accentColor = isHealthAi ? colors.primary : '#F43F5E';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPassFocused, setIsPassFocused] = useState(false);
+  
+  const styles = React.useMemo(() => createDynamicStyles(isDark, accent), [isDark, accent]);
 
-  // const loginMutation = useLogin();
-  // const googleLoginMutation = useGoogleLogin();
+  // Animation Values
+  const anims = useRef([...Array(6)].map(() => new Animated.Value(0))).current;
 
-  const isLoading = false;
+  useEffect(() => {
+    const staggerAnims = anims.map((anim, i) => 
+      Animated.timing(anim, {
+        toValue: 1,
+        duration: 600,
+        delay: i * 150,
+        easing: Easing.out(Easing.back(1)),
+        useNativeDriver: true,
+      })
+    );
+    Animated.stagger(100, staggerAnims).start();
+  }, []);
+
+  const onGoogleButtonPress = async () => {
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result = await GoogleSignin.signIn();
+      const idToken = result.data?.idToken;
+      if (!idToken) throw new Error('Could not get ID Token from Google');
+      
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(googleCredential);
+      
+      navigation.reset({
+        index: 0,
+        routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }],
+      });
+    } catch (error: any) {
+      console.error(error);
+      // Even if Google Sign-In fails, let's allow bypass for now if requested, 
+      // but the user wants the real feature, so we keep the error alert.
+      Alert.alert('Sign In', 'Google login failed. Please try again.');
+    }
+  };
 
   React.useEffect(() => {
     GoogleSignin.configure({
       webClientId: '366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com',
-      offlineAccess: true, 
-      scopes: ['profile', 'email'],
     });
   }, []);
 
-  const onGoogleButtonPress = async () => {
-    // Mock Google Sign-In (REVERTED)
-    navigation.reset({
-      index: 0,
-      routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
-    });
-  };
-
-  const validateEmail = (text: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(text);
-  };
-
   const handleLogin = () => {
-    let hasError = false;
-    setEmailError('');
-    setPasswordError('');
-
-    if (!email.trim()) {
-      setEmailError('Email is required');
-      hasError = true;
-    } else if (!validateEmail(email.trim())) {
-      setEmailError('Invalid email');
-      hasError = true;
-    }
-
-    if (!password.trim()) {
-      setPasswordError('Password is required');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    // Mock Login (REVERTED)
-    navigation.reset({
-      index: 0,
-      routes: [{ name: role === 'healthai' ? 'HealthAiMain' : 'BeautiCareMain' }],
-    });
+    navigation.reset({ index: 0, routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] });
   };
+
+  const renderAnimatedView = (index: number, children: React.ReactNode, style?: any) => (
+    <Animated.View style={[{
+      opacity: anims[index],
+      transform: [{ translateY: anims[index].interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }]
+    }, style]}>
+      {children}
+    </Animated.View>
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#0F172A' : '#F8FAFC'} />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      
+      {/* Immersive Mesh Gradient Background */}
+      <View style={StyleSheet.absoluteFill}>
+        <LinearGradient 
+          colors={isDark ? ['#020617', '#0F172A', '#020617'] : ['#F8FAFC', '#F1F5F9', '#E2E8F0']} 
+          style={StyleSheet.absoluteFill} 
+        />
+        {/* Abstract Mesh Blobs */}
+        <View style={[styles.meshBlob, { top: -50, right: -50, backgroundColor: `${accent}15`, transform: [{scale: 1.5}] }]} />
+        <View style={[styles.meshBlob, { bottom: 100, left: -100, backgroundColor: isHealthAi ? '#3B82F610' : '#F43F5E10', transform: [{scale: 2}] }]} />
+      </View>
 
-      <View style={[styles.bgDecor1, { backgroundColor: `${accentColor}15` }]} />
-      <View style={[styles.bgDecor2, { backgroundColor: `${accentColor}10` }]} />
-
-      <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-              <Icon name="arrow-left" size={22} color={isDark ? '#F1F5F9' : '#0F172A'} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.roleBadge}>
-            <View style={[styles.roleBadgeIcon, { backgroundColor: accentColor }]}>
-              <Icon name={roleIcon} size={18} color="#fff" />
-            </View>
-            <Text style={[styles.roleBadgeText, { color: accentColor }]}>
-              {roleName.toUpperCase()}
-            </Text>
-          </View>
-
-          <View style={styles.titleSection}>
-            <Text style={styles.welcomeText}>Welcome Back</Text>
-            <Text style={styles.title}>Sign In to{'\n'}Your Account</Text>
-            <Text style={styles.subtitle}>
-              Enter your credentials for {roleName}
-            </Text>
-          </View>
-
-          <View style={styles.formSection}>
-
-            {/* Email */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>EMAIL</Text>
-              <View style={[
-                styles.inputContainer,
-                emailError && styles.inputError,
-                email && !emailError && { borderColor: accentColor }
-              ]}>
-                <Icon name="email-outline" size={20} color={isDark ? '#94A3B8' : '#64748B'} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="your@email.com"
-                  placeholderTextColor={isDark ? '#475569' : '#94A3B8'}
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
+      <SafeAreaView style={styles.flex1}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex1}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            
+            {/* Minimal Header */}
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backTouch}>
+                <Icon name="close" size={24} color={isDark ? '#FFF' : '#000'} />
+              </TouchableOpacity>
+              <View style={styles.brandBox}>
+                <View style={[styles.brandDot, { backgroundColor: accent }]} />
+                <Text style={styles.brandName}>SYMBOSYS</Text>
               </View>
-              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
 
-            {/* Password */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>PASSWORD</Text>
-              <View style={[
-                styles.inputContainer,
-                passwordError && styles.inputError,
-                password && !passwordError && { borderColor: accentColor }
-              ]}>
-                <Icon name="lock-outline" size={20} color={isDark ? '#94A3B8' : '#64748B'} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter password"
-                  placeholderTextColor={isDark ? '#475569' : '#94A3B8'}
-                  secureTextEntry={!showPassword}
-                  value={password}
-                  onChangeText={setPassword}
-                />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} color={isDark ? '#94A3B8' : '#64748B'} />
-                </TouchableOpacity>
+            <View style={styles.mainContent}>
+              
+              {/* Luxury Welcome Section */}
+              {renderAnimatedView(0, (
+                <View style={styles.welcomeBox}>
+                  <Text style={[styles.roleLabel, { color: accent }]}>{roleName.toUpperCase()}</Text>
+                  <Text style={styles.welcomeTitle}>Ready for your{'\n'}<Text style={{color: accent}}>next level?</Text></Text>
+                  <Text style={styles.welcomeSub}>Please sign in to your workspace to continue.</Text>
+                </View>
+              ))}
+
+              {/* Integrated Form Section */}
+              <View style={styles.formBox}>
+                
+                {/* Email Field */}
+                {renderAnimatedView(1, (
+                  <View style={styles.inputGroup}>
+                    <Text style={[styles.inputTitle, (isEmailFocused || email) && { color: accent }]}>EMAIL ADDRESS</Text>
+                    <View style={[styles.underlinedInput, isEmailFocused && { borderBottomColor: accent, borderBottomWidth: 2 }]}>
+                      <Icon name="email-outline" size={22} color={isEmailFocused ? accent : '#94A3B8'} />
+                      <TextInput
+                        style={styles.input}
+                        placeholder="your@email.com"
+                        placeholderTextColor="#64748B"
+                        value={email}
+                        onFocus={() => setIsEmailFocused(true)}
+                        onBlur={() => setIsEmailFocused(false)}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                      />
+                    </View>
+                  </View>
+                ))}
+
+                {/* Password Field */}
+                {renderAnimatedView(2, (
+                  <View style={styles.inputGroup}>
+                    <View style={styles.titleRow}>
+                      <Text style={[styles.inputTitle, (isPassFocused || password) && { color: accent }]}>SECURITY CODE</Text>
+                      <TouchableOpacity><Text style={[styles.forgotLink, { color: accent }]}>Forgot?</Text></TouchableOpacity>
+                    </View>
+                    <View style={[styles.underlinedInput, isPassFocused && { borderBottomColor: accent, borderBottomWidth: 2 }]}>
+                      <Icon name="lock-outline" size={22} color={isPassFocused ? accent : '#94A3B8'} />
+                      <TextInput
+                        style={styles.input}
+                        placeholder="••••••••"
+                        placeholderTextColor="#64748B"
+                        secureTextEntry={!showPassword}
+                        value={password}
+                        onFocus={() => setIsPassFocused(true)}
+                        onBlur={() => setIsPassFocused(false)}
+                        onChangeText={setPassword}
+                      />
+                      <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                        <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} color="#94A3B8" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+
+                {/* Main Action Button */}
+                {renderAnimatedView(3, (
+                  <TouchableOpacity activeOpacity={0.9} onPress={handleLogin} style={styles.loginBtnWrapper}>
+                    <LinearGradient colors={themeGradients} style={styles.loginBtn} start={{x:0, y:0}} end={{x:1, y:0}}>
+                      <Text style={styles.loginBtnText}>Enter Workspace</Text>
+                      <Icon name="arrow-right" size={20} color="#FFF" />
+                    </LinearGradient>
+                  </TouchableOpacity>
+                ))}
+
+                {/* Social Login Section */}
+                {renderAnimatedView(4, (
+                  <View style={styles.socialBox}>
+                    <View style={styles.dividerRow}>
+                      <View style={styles.line} />
+                      <Text style={styles.orText}>ONE-CLICK SIGN IN</Text>
+                      <View style={styles.line} />
+                    </View>
+
+                    <TouchableOpacity 
+                      activeOpacity={0.8} 
+                      onPress={onGoogleButtonPress}
+                      onPressIn={() => Animated.spring(anims[4], { toValue: 0.96, useNativeDriver: true }).start()}
+                      onPressOut={() => Animated.spring(anims[4], { toValue: 1, useNativeDriver: true }).start()}
+                    >
+                      <Animated.View style={[styles.googleButton, { transform: [{ scale: anims[4] }] }]}>
+                         <Icon name="google" size={24} color={isDark ? '#FFF' : '#000'} />
+                         <Text style={styles.googleLabel}>Continue with Google</Text>
+                      </Animated.View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+
               </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+
             </View>
-
-            <TouchableOpacity style={[styles.loginBtn, { backgroundColor: accentColor }]} onPress={handleLogin}>
-              <Text style={styles.loginBtnText}>Sign In</Text>
-            </TouchableOpacity>
-
-            <View style={styles.dividerContainer}>
-              <View style={styles.divider} />
-              <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.divider} />
-            </View>
-
-            <TouchableOpacity style={styles.googleBtn} onPress={onGoogleButtonPress}>
-              <Icon name="google" size={20} color={isDark ? '#F1F5F9' : '#0F172A'} />
-              <Text style={styles.googleBtnText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register', { role })}>
-              <Text style={styles.registerLinkText}>
-                Don't have an account? <Text style={{ color: accentColor, fontWeight: '800' }}>Sign Up</Text>
-              </Text>
-            </TouchableOpacity>
-
-          </View>
-
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 };
 
-const createDynamicStyles = (colors: ThemeColors, isDark: boolean) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
-    },
-    flex1: { flex: 1 },
-    scrollContent: { paddingBottom: 40 },
-
-    bgDecor1: {
-      position: 'absolute',
-      top: -80,
-      right: -60,
-      width: 220,
-      height: 220,
-      borderRadius: 110,
-    },
-    bgDecor2: {
-      position: 'absolute',
-      bottom: 80,
-      left: -50,
-      width: 160,
-      height: 160,
-      borderRadius: 80,
-    },
-
-    header: { padding: 24, paddingTop: Platform.OS === 'android' ? 10 : 24 },
-
-    backBtn: {
-      backgroundColor: isDark ? '#1E293B' : '#E2E8F0',
-      padding: 10,
-      borderRadius: 10,
-      alignSelf: 'flex-start',
-    },
-
-    roleBadge: {
-      flexDirection: 'row',
-      marginLeft: 24,
-      gap: 10,
-      alignItems: 'center',
-    },
-
-    roleBadgeIcon: {
-      width: 30,
-      height: 30,
-      borderRadius: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-
-    roleBadgeText: {
-      fontWeight: '800',
-      fontSize: 12,
-    },
-
-    titleSection: {
-      padding: 24,
-    },
-
-    welcomeText: {
-      color: isDark ? '#94A3B8' : '#64748B',
-      fontSize: 14,
-      fontWeight: '600',
-      marginBottom: 8,
-    },
-
-    title: {
-      fontSize: 32,
-      color: isDark ? '#F1F5F9' : '#0F172A',
-      fontWeight: '800',
-      lineHeight: 40,
-    },
-
-    subtitle: {
-      color: isDark ? '#94A3B8' : '#64748B',
-      marginTop: 8,
-      fontSize: 14,
-    },
-
-    formSection: {
-      paddingHorizontal: 24,
-    },
-
-    inputGroup: {
-      marginBottom: 20,
-    },
-
-    inputLabel: {
-      fontSize: 12,
-      marginBottom: 8,
-      color: isDark ? '#94A3B8' : '#64748B',
-      fontWeight: '700',
-      letterSpacing: 1,
-    },
-
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
-      borderRadius: 16,
-      paddingHorizontal: 16,
-      paddingVertical: Platform.OS === 'ios' ? 14 : 4,
-      borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
-    },
-
-    input: {
-      flex: 1,
-      color: isDark ? '#F1F5F9' : '#0F172A',
-      fontSize: 15,
-      marginLeft: 10,
-    },
-
-    inputError: {
-      borderColor: '#EF4444',
-    },
-
-    errorText: {
-      color: '#EF4444',
-      fontSize: 12,
-      marginTop: 6,
-      marginLeft: 4,
-    },
-
-    loginBtn: {
-      padding: 18,
-      borderRadius: 16,
-      marginTop: 10,
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 2,
-    },
-
-    loginBtnText: {
-      color: '#fff',
-      fontWeight: '700',
-      fontSize: 16,
-    },
-    dividerContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginVertical: 24,
-    },
-    divider: {
-      flex: 1,
-      height: 1,
-      backgroundColor: isDark ? '#334155' : '#E2E8F0',
-    },
-    dividerText: {
-      marginHorizontal: 16,
-      color: isDark ? '#94A3B8' : '#64748B',
-      fontSize: 12,
-      fontWeight: '700',
-    },
-    googleBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 16,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
-      backgroundColor: isDark ? 'transparent' : '#FFFFFF',
-    },
-    googleBtnText: {
-      marginLeft: 10,
-      color: isDark ? '#F1F5F9' : '#0F172A',
-      fontWeight: '600',
-      fontSize: 15,
-    },
-    registerLink: {
-      marginTop: 24,
-      alignItems: 'center',
-    },
-    registerLinkText: {
-      color: isDark ? '#94A3B8' : '#64748B',
-      fontSize: 14,
-    },
-  });
+const createDynamicStyles = (isDark: boolean, accent: string) => StyleSheet.create({
+  container: { flex: 1 },
+  flex1: { flex: 1 },
+  scrollContent: { flexGrow: 1, paddingBottom: 40 },
+  meshBlob: { position: 'absolute', width: 400, height: 400, borderRadius: 200 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 20,
+    height: 80,
+  },
+  backTouch: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  brandBox: { flexDirection: 'row', alignItems: 'center' },
+  brandDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
+  brandName: { fontSize: 13, fontWeight: '900', color: '#94A3B8', letterSpacing: 4 },
+  
+  mainContent: { flex: 1, paddingHorizontal: 30 },
+  welcomeBox: { marginTop: 40, marginBottom: 50 },
+  roleLabel: { fontSize: 11, fontWeight: '900', letterSpacing: 3, marginBottom: 12 },
+  welcomeTitle: { fontSize: 44, fontWeight: '900', color: '#FFF', lineHeight: 52, letterSpacing: -1.5 },
+  welcomeSub: { fontSize: 16, color: '#94A3B8', marginTop: 15, lineHeight: 24, maxWidth: '80%' },
+  
+  formBox: { flex: 1 },
+  inputGroup: { marginBottom: 35 },
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  inputTitle: { fontSize: 11, fontWeight: '900', color: '#475569', letterSpacing: 2 },
+  underlinedInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1.5,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+    paddingBottom: 10,
+    marginTop: 5,
+  },
+  input: { flex: 1, marginLeft: 15, fontSize: 18, fontWeight: '600', color: '#FFF' },
+  forgotLink: { fontSize: 12, fontWeight: '800' },
+  
+  loginBtnWrapper: { marginTop: 10, elevation: 12, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20 },
+  loginBtn: { height: 72, borderRadius: 24, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12 },
+  loginBtnText: { color: '#FFF', fontSize: 20, fontWeight: '900', letterSpacing: 0.5 },
+  
+  socialBox: { marginTop: 40 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 25 },
+  line: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
+  orText: { marginHorizontal: 15, fontSize: 10, fontWeight: '900', color: '#334155', letterSpacing: 2 },
+  googleButton: {
+    height: 64,
+    borderRadius: 24,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 2,
+    borderColor: `${accent}40`, // Dynamic Theme Border
+  },
+  googleLabel: { marginLeft: 12, fontSize: 16, fontWeight: '700', color: '#94A3B8' },
+  
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 50 },
+  footerText: { color: '#64748B', fontSize: 14, fontWeight: '600' },
+  signUpText: { fontSize: 14, fontWeight: '900' },
+});
 
 export default LoginScreen;

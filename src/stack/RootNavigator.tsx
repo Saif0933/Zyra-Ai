@@ -3,7 +3,6 @@ import React from 'react';
 
 // Auth & Role Selection
 import LoginScreen from '../selectRole/LoginScreen';
-import RegisterScreen from '../selectRole/RegisterScreen';
 import SelectRoleScreen from '../selectRole/SelectRoleScreen';
 
 // Main Tab Navigators
@@ -26,7 +25,6 @@ export type RootStackParamList = {
   Onboarding: undefined;
   SelectRole: undefined;
   Login: { role?: string } | undefined;
-  Register: { role?: string } | undefined;
   HealthAiMain: undefined;
   BeautiCareMain: undefined;
   HealthGoals: undefined;
@@ -51,7 +49,6 @@ const RootNavigator = () => {
       {/* Auth Flow */}
       <Stack.Screen name="SelectRole" component={SelectRoleScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
 
       {/* Main Apps */}
       <Stack.Screen name="HealthAiMain" component={BottomTabNavigator} />

@@ -136,7 +136,6 @@ const SelectRoleScreen: React.FC<SelectRoleScreenProps> = ({ navigation }) => {
             <Icon name="arrow-right" size={20} color={selectedRole ? '#FFF' : '#94A3B8'} />
           </LinearGradient>
         </TouchableOpacity>
-        <Text style={styles.footerText}>Already have an account? <Text style={styles.signIn} onPress={() => navigation.navigate('Login')}>Sign In</Text></Text>
       </View>
     </View>
   );
