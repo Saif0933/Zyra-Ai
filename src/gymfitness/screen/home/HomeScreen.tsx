@@ -168,8 +168,7 @@ const LineChartSVG = ({ data, labels, width, height, isDark, styles }: any) => {
 
   let pathData = `M ${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length; i++) {
-    const cp1x = points[i - 1].x + (points[i].x - points[i - 1].x) / 2;
-    pathData += ` C ${cp1x} ${points[i - 1].y}, ${cp1x} ${points[i].y}, ${points[i].x} ${points[i].y}`;
+    pathData += ` L ${points[i].x} ${points[i].y}`;
   }
 
   const fillPath = `${pathData} L ${points[points.length - 1].x} ${paddingTop + chartHeight} L ${points[0].x} ${paddingTop + chartHeight} Z`;

@@ -187,8 +187,22 @@ const BeautiCareProfileScreen = () => {
             isDark={isDark}
             styles={styles}
           />
-          <SettingItem icon="face-woman-shimmer-outline" title="Skin Profile"        sub="Update your skin type & concerns"     isDark={isDark} styles={styles} />
-          <SettingItem icon="bottle-tonic-plus"          title="My Product Shelf"    sub="Manage your scanned products"          isDark={isDark} styles={styles} />
+          <SettingItem 
+            icon="face-woman-shimmer-outline" 
+            title="Skin Profile" 
+            sub="Update your skin type & concerns" 
+            isDark={isDark} 
+            styles={styles} 
+            onPress={() => navigation.navigate('SkinProfile' as never)}
+          />
+          <SettingItem 
+            icon="bottle-tonic-plus" 
+            title="My Product Shelf" 
+            sub="Manage your scanned products" 
+            isDark={isDark} 
+            styles={styles} 
+            onPress={() => navigation.navigate('ProductShelf' as never)}
+          />
           <SettingItem icon="shield-lock-outline"        title="Privacy & Data"      sub="Manage your data & privacy"            isDark={isDark} styles={styles} />
           <SettingItem icon="help-circle-outline"        title="Help & Support"      sub="FAQ, contact, and feedback"            isDark={isDark} styles={styles} />
 
@@ -221,8 +235,12 @@ const AchievementItem = ({ icon, label, color, active, styles }: any) => (
   </View>
 );
 
-const SettingItem = ({ icon, title, sub, type, value, onValueChange, isDark, styles }: any) => (
-  <TouchableOpacity style={styles.settingItem} activeOpacity={type === 'switch' ? 1 : 0.7}>
+const SettingItem = ({ icon, title, sub, type, value, onValueChange, isDark, styles, onPress }: any) => (
+  <TouchableOpacity 
+    style={styles.settingItem} 
+    activeOpacity={type === 'switch' ? 1 : 0.7}
+    onPress={onPress}
+  >
     <View style={styles.settingLeft}>
       <View style={styles.settingIconBg}>
         <Icon name={icon} size={20} color={isDark ? "#94A3B8" : "#64748B"} />

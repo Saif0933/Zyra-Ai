@@ -3,14 +3,16 @@ import React from 'react';
 
 // Auth & Role Selection
 import LoginScreen from '../selectRole/LoginScreen';
-import SelectRoleScreen from '../selectRole/SelectRoleScreen';
 import RegisterScreen from '../selectRole/RegisterScreen';
+import SelectRoleScreen from '../selectRole/SelectRoleScreen';
 
 // Main Tab Navigators
 import BeautiCareTabNavigator from '../beautiCare/navigation/BeautiCareTabNavigator';
 import BottomTabNavigator from '../gymfitness/navigation/BottomTabNavigator';
 
 // Setting Screens
+import SkinProfileScreen from '../beautiCare/screen/setting/SkinProfileScreen';
+import ProductShelfScreen from '../beautiCare/screen/setting/ProductShelfScreen';
 import HealthGoalScreen from '../gymfitness/screen/setting/HealthGoalScreen';
 import WorkoutIntegrationScreen from '../gymfitness/screen/setting/WorkoutIntegrationScreen';
 
@@ -30,6 +32,8 @@ export type RootStackParamList = {
   HealthGoals: undefined;
   WorkoutIntegration: undefined;
   ScanHistory: undefined;
+  SkinProfile: undefined;
+  ProductShelf: undefined;
 };
 
 const RootNavigator = () => {
@@ -57,6 +61,8 @@ const RootNavigator = () => {
       <Stack.Screen name="HealthGoals" component={HealthGoalScreen} />
       <Stack.Screen name="WorkoutIntegration" component={WorkoutIntegrationScreen} />
       <Stack.Screen name="ScanHistory" component={ScanHistoryScreen} />
+      <Stack.Screen name="SkinProfile" component={SkinProfileScreen} />
+      <Stack.Screen name="ProductShelf" component={ProductShelfScreen} />
     </Stack.Navigator>
   );
 };
