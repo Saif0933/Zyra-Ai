@@ -103,7 +103,7 @@ const BeautyDashboard = () => {
           <MicroGridItem label="Retinol"         val="0.025% / 0.05%" color="#A855F7" progress={0.5}  styles={styles} />
         </View>
 
-        {/* PERFORMANCE ANALYTICS SECTION */}
+        {/* PERFORMANCE ANALYTICS SECTION WITH GOAL TRACKING - WEEKLY */}
         <View style={styles.weeklyCard}>
           <View style={styles.chartHeaderRow}>
             <View style={styles.rowAlign}>
@@ -115,7 +115,7 @@ const BeautyDashboard = () => {
             </View>
           </View>
 
-          {/* Legend Row */}
+          {/* Legend Row WITH CURRENT WEEK ONLY */}
           <View style={styles.legendRow}>
               <View style={styles.legendItem}>
                 <View style={[styles.dot, {backgroundColor: '#F43F5E'}]} />
