@@ -162,7 +162,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
 
       <SafeAreaView style={styles.flex1}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex1}>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.scrollContent}>
             
             {/* Minimal Header */}
             <View style={styles.header}>
@@ -281,7 +281,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
               </View>
 
             </View>
-          </ScrollView>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
@@ -314,47 +314,47 @@ const createDynamicStyles = (isDark: boolean, accent: string) => StyleSheet.crea
   brandName: { fontSize: 13, fontWeight: '900', color: '#94A3B8', letterSpacing: 4 },
   
   mainContent: { flex: 1, paddingHorizontal: 30 },
-  welcomeBox: { marginTop: 40, marginBottom: 50 },
-  roleLabel: { fontSize: 11, fontWeight: '900', letterSpacing: 3, marginBottom: 12 },
-  welcomeTitle: { fontSize: 44, fontWeight: '900', color: '#FFF', lineHeight: 52, letterSpacing: -1.5 },
-  welcomeSub: { fontSize: 16, color: '#94A3B8', marginTop: 15, lineHeight: 24, maxWidth: '80%' },
+  welcomeBox: { marginTop: 20, marginBottom: 30 },
+  roleLabel: { fontSize: 11, fontWeight: '900', letterSpacing: 3, marginBottom: 8 },
+  welcomeTitle: { fontSize: 38, fontWeight: '900', color: isDark ? '#FFF' : '#1E293B', lineHeight: 46, letterSpacing: -1.5 },
+  welcomeSub: { fontSize: 15, color: isDark ? '#94A3B8' : '#64748B', marginTop: 10, lineHeight: 22, maxWidth: '80%' },
   
   formBox: { flex: 1 },
-  inputGroup: { marginBottom: 35 },
-  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  inputTitle: { fontSize: 11, fontWeight: '900', color: '#475569', letterSpacing: 2 },
+  inputGroup: { marginBottom: 25 },
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  inputTitle: { fontSize: 11, fontWeight: '900', color: isDark ? '#94A3B8' : '#475569', letterSpacing: 2 },
   underlinedInput: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1.5,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
-    paddingBottom: 10,
-    marginTop: 5,
+    borderBottomColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+    paddingBottom: 8,
+    marginTop: 4,
   },
-  input: { flex: 1, marginLeft: 15, fontSize: 18, fontWeight: '600', color: '#FFF' },
+  input: { flex: 1, marginLeft: 15, fontSize: 17, fontWeight: '600', color: isDark ? '#FFF' : '#1E293B' },
   forgotLink: { fontSize: 12, fontWeight: '800' },
   
   loginBtnWrapper: { marginTop: 10, elevation: 12, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20 },
-  loginBtn: { height: 72, borderRadius: 24, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loginBtnText: { color: '#FFF', fontSize: 20, fontWeight: '900', letterSpacing: 0.5 },
+  loginBtn: { height: 64, borderRadius: 24, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12 },
+  loginBtnText: { color: '#FFF', fontSize: 18, fontWeight: '900', letterSpacing: 0.5 },
   
-  socialBox: { marginTop: 40 },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 25 },
-  line: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
-  orText: { marginHorizontal: 15, fontSize: 10, fontWeight: '900', color: '#334155', letterSpacing: 2 },
+  socialBox: { marginTop: 30 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+  line: { flex: 1, height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+  orText: { marginHorizontal: 15, fontSize: 10, fontWeight: '900', color: isDark ? '#475569' : '#94A3B8', letterSpacing: 2 },
   googleButton: {
     height: 64,
     borderRadius: 24,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
     borderWidth: 2,
     borderColor: `${accent}40`, // Dynamic Theme Border
   },
-  googleLabel: { marginLeft: 12, fontSize: 16, fontWeight: '700', color: '#94A3B8' },
+  googleLabel: { marginLeft: 12, fontSize: 16, fontWeight: '700', color: isDark ? '#CBD5E1' : '#1E293B' },
   
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 50 },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 30 },
   footerText: { color: '#64748B', fontSize: 14, fontWeight: '600' },
   signUpText: { fontSize: 14, fontWeight: '900' },
 });
