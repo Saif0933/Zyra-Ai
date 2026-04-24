@@ -10,8 +10,8 @@ import BeautiCareTabNavigator from '../beautiCare/navigation/BeautiCareTabNaviga
 import BottomTabNavigator from '../gymfitness/navigation/BottomTabNavigator';
 
 // Setting Screens
-import SkinProfileScreen from '../beautiCare/screen/setting/SkinProfileScreen';
 import ProductShelfScreen from '../beautiCare/screen/setting/ProductShelfScreen';
+import SkinProfileScreen from '../beautiCare/screen/setting/SkinProfileScreen';
 import HealthGoalScreen from '../gymfitness/screen/setting/HealthGoalScreen';
 import WorkoutIntegrationScreen from '../gymfitness/screen/setting/WorkoutIntegrationScreen';
 
