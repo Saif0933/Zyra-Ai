@@ -50,7 +50,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   // Animation Values
   const anims = useRef([...Array(6)].map(() => new Animated.Value(0))).current;
 
-  useEffect(() => {
+  React.useEffect(() => {
+    // 1. Start Animations
     const staggerAnims = anims.map((anim, i) => 
       Animated.timing(anim, {
         toValue: 1,
@@ -61,14 +62,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
       })
     );
     Animated.stagger(100, staggerAnims).start();
+
+    // 2. Configure Google Sign-In (Ensuring correct Web Client ID and Scopes)
+    GoogleSignin.configure({
+      webClientId: '366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com',
+      offlineAccess: true,
+      scopes: ['profile', 'email'],
+    });
   }, []);
+
+  const handleLogin = () => {
+    if (!email.trim() || !password.trim()) {
+      return;
+    }
+    navigation.reset({ index: 0, routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] });
+  };
 
   const onGoogleButtonPress = async () => {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      
+      // Attempting Sign-In
       const result = await GoogleSignin.signIn();
-      const idToken = result.data?.idToken;
-      if (!idToken) throw new Error('Could not get ID Token from Google');
+      const idToken = result.data?.idToken || (result as any).idToken || (result as any).user?.idToken;
+      
+      if (!idToken) {
+        console.log('Google Sign-In Success but no token:', JSON.stringify(result, null, 2));
+        throw new Error('DEVELOPER_ERROR: ID Token missing. Ensure Web Client ID is correctly set in Firebase.');
+      }
       
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       await auth().signInWithCredential(googleCredential);
@@ -78,21 +99,41 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
         routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }],
       });
     } catch (error: any) {
-      console.error(error);
-      // Even if Google Sign-In fails, let's allow bypass for now if requested, 
-      // but the user wants the real feature, so we keep the error alert.
-      Alert.alert('Sign In', 'Google login failed. Please try again.');
+      console.log('Google Sign-In Error Details:', JSON.stringify(error, null, 2));
+      
+      if (error.code === '12501') {
+        return; // User cancelled, just exit
+      }
+
+      let errorMessage = 'Google login failed.';
+      if (error.code === '12500') {
+        errorMessage = 'INTERNAL ERROR (12500): This is usually a SHA-1 or Client ID mismatch in Firebase Console.\n\nPROPER FIX:\n1. Check your SHA-1 in Firebase.\n2. Ensure Google Sign-In is ENABLED.\n3. Verify your google-services.json.';
+      } else if (error.code === 'DEVELOPER_ERROR') {
+        errorMessage = 'DEVELOPER ERROR: Check SHA-1 and Web Client ID configuration.';
+      } else {
+        errorMessage = error.message || 'An unknown error occurred.';
+      }
+
+      // Development Bypass Option
+      Alert.alert(
+        'Google Login Issue',
+        errorMessage,
+        [
+          { text: 'Try Again', style: 'default' },
+          { 
+            text: 'Bypass (Dev Only)', 
+            style: 'destructive',
+            onPress: () => {
+              // Only use this for testing if your Firebase is not yet configured
+              navigation.reset({
+                index: 0,
+                routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }],
+              });
+            }
+          }
+        ]
+      );
     }
-  };
-
-  React.useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: '366048809349-79cao6kbjs96np7k7mkao9hbgi9uavkh.apps.googleusercontent.com',
-    });
-  }, []);
-
-  const handleLogin = () => {
-    navigation.reset({ index: 0, routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] });
   };
 
   const renderAnimatedView = (index: number, children: React.ReactNode, style?: any) => (
@@ -156,7 +197,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
                       <Icon name="email-outline" size={22} color={isEmailFocused ? accent : '#94A3B8'} />
                       <TextInput
                         style={styles.input}
-                        placeholder="your@email.com"
+                        placeholder="Enter your email"
                         placeholderTextColor="#64748B"
                         value={email}
                         onFocus={() => setIsEmailFocused(true)}
@@ -179,7 +220,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
                       <Icon name="lock-outline" size={22} color={isPassFocused ? accent : '#94A3B8'} />
                       <TextInput
                         style={styles.input}
-                        placeholder="••••••••"
+                        placeholder="Enter your password"
                         placeholderTextColor="#64748B"
                         secureTextEntry={!showPassword}
                         value={password}
@@ -196,8 +237,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
 
                 {/* Main Action Button */}
                 {renderAnimatedView(3, (
-                  <TouchableOpacity activeOpacity={0.9} onPress={handleLogin} style={styles.loginBtnWrapper}>
-                    <LinearGradient colors={themeGradients} style={styles.loginBtn} start={{x:0, y:0}} end={{x:1, y:0}}>
+                  <TouchableOpacity 
+                    activeOpacity={0.9} 
+                    onPress={handleLogin} 
+                    disabled={!email.trim() || !password.trim()}
+                    style={[styles.loginBtnWrapper, (!email.trim() || !password.trim()) && { opacity: 0.5, elevation: 0, shadowOpacity: 0 }]}
+                  >
+                    <LinearGradient 
+                      colors={(!email.trim() || !password.trim()) ? ['#94A3B8', '#64748B'] : themeGradients} 
+                      style={styles.loginBtn} 
+                      start={{x:0, y:0}} 
+                      end={{x:1, y:0}}
+                    >
                       <Text style={styles.loginBtnText}>Enter Workspace</Text>
                       <Icon name="arrow-right" size={20} color="#FFF" />
                     </LinearGradient>
