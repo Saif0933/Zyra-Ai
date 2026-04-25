@@ -154,7 +154,6 @@ const BottomTabNavigator = () => {
       screenOptions={{
         headerShown: false,
         lazy: true,
-        detachInactiveScreens: true,
         tabBarHideOnKeyboard: true,
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: ACTIVE_COLOR,
