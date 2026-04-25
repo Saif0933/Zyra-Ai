@@ -697,10 +697,7 @@ const ProfileScreen = () => {
         >
           <View style={styles.overlay}>
             <SafeAreaView>
-              <View style={styles.topNav}>
-                <Icon name="menu" size={28} color="#FFF" />
-                <Icon name="bell-badge-outline" size={26} color="#FFF" />
-              </View>
+              {/* Top Icons Removed as requested */}
 
               <View style={styles.profileRow}>
                 <View style={styles.avatarWrapper}>
@@ -890,16 +887,15 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   container: { flex: 1, backgroundColor: isDark ? '#090909' : '#F8FAFC' },
   scrollContent: { paddingBottom: 20 },
   headerBg: { height: 260, width: '100%' },
-  overlay: { flex: 1, backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)', paddingHorizontal: 16 },
-  topNav: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Platform.OS === 'ios' ? 10 : 40 },
-  profileRow: { flexDirection: 'row', alignItems: 'center', marginTop: 25 },
+  overlay: { flex: 1, backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)', paddingHorizontal: 16, justifyContent: 'flex-end', paddingBottom: 35 },
+  profileRow: { flexDirection: 'row', alignItems: 'center' },
   avatarWrapper: { position: 'relative' },
-  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: isDark ? 'rgba(21, 128, 61, 0.5)' : 'rgba(34, 197, 94, 0.2)', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#86EFAC' },
-  avatarText: { fontSize: 40, color: '#FFF', fontWeight: 'bold' },
+  avatar: { width: 70, height: 70, borderRadius: 35, backgroundColor: isDark ? 'rgba(21, 128, 61, 0.5)' : 'rgba(34, 197, 94, 0.2)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#86EFAC' },
+  avatarText: { fontSize: 30, color: '#FFF', fontWeight: 'bold' },
   camBtn: { position: 'absolute', bottom: 5, right: 0, backgroundColor: '#000', padding: 4, borderRadius: 10, borderWidth: 1, borderColor: '#333' },
   userMeta: { marginLeft: 16, flex: 1 },
   nameRow: { flexDirection: 'row', alignItems: 'center' },
-  nameText: { fontSize: 24, fontWeight: 'bold', color: '#FFF' },
+  nameText: { fontSize: 18, fontWeight: 'bold', color: '#FFF' },
   freeBadge: { backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, marginLeft: 10 },
   freeText: { fontSize: 10, color: '#86EFAC', fontWeight: 'bold' },
   infoLine: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
