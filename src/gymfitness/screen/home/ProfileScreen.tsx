@@ -660,13 +660,15 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const { isDark, toggleTheme } = useTheme();
+  const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
   const [isNotifications, setIsNotifications] = React.useState(true);
-  const [isDarkMode, setIsDarkMode] = React.useState(true);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure?', [
@@ -683,7 +685,7 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
@@ -732,10 +734,10 @@ const ProfileScreen = () => {
         <View style={styles.contentBody}>
           {/* Stats Grid */}
           <View style={styles.statsGrid}>
-            <StatCard icon="silverware-fork-knife" val="342" label="MEALS LOGGED" color="#86EFAC" />
-            <StatCard icon="fire" val="14" label="DAY STREAK" color="#FB923C" />
-            <StatCard icon="bottle-tonic-plus-outline" val="145g" label="AVG PROTEIN" color="#4ADE80" />
-            <StatCard icon="barcode-scan" val="12" label="ACHIEVEMENT" color="#60A5FA" />
+            <StatCard icon="silverware-fork-knife" val="342" label="MEALS LOGGED" color="#86EFAC" styles={styles} isDark={isDark} />
+            <StatCard icon="fire" val="14" label="DAY STREAK" color="#FB923C" styles={styles} isDark={isDark} />
+            <StatCard icon="bottle-tonic-plus-outline" val="145g" label="AVG PROTEIN" color="#4ADE80" styles={styles} isDark={isDark} />
+            <StatCard icon="barcode-scan" val="12" label="ACHIEVEMENT" color="#60A5FA" styles={styles} isDark={isDark} />
           </View>
 
           {/* Weight Progress Chart */}
@@ -792,12 +794,12 @@ const ProfileScreen = () => {
               <Text style={styles.earnedCount}>3/6 Earned</Text>
             </View>
             <View style={styles.achievementsGrid}>
-              <AchItem icon="fire" title="7-Day Streak" active color="#FB923C" />
-              <AchItem icon="target" title="100 Meals" active color="#86EFAC" />
-              <AchItem icon="arm-flex" title="Protein King" active color="#FBBF24" />
-              <AchItem icon="star" title="30-Day Streak" locked />
-              <AchItem icon="trophy" title="500 Meals" locked />
-              <AchItem icon="crown" title="1 Year" locked />
+              <AchItem icon="fire" title="7-Day Streak" active color="#FB923C" styles={styles} isDark={isDark} />
+              <AchItem icon="target" title="100 Meals" active color="#86EFAC" styles={styles} isDark={isDark} />
+              <AchItem icon="arm-flex" title="Protein King" active color="#FBBF24" styles={styles} isDark={isDark} />
+              <AchItem icon="star" title="30-Day Streak" locked styles={styles} isDark={isDark} />
+              <AchItem icon="trophy" title="500 Meals" locked styles={styles} isDark={isDark} />
+              <AchItem icon="crown" title="1 Year" locked styles={styles} isDark={isDark} />
             </View>
           </View>
 
@@ -809,12 +811,17 @@ const ProfileScreen = () => {
                 <Text style={styles.cardTitle}>Settings</Text>
               </View>
             </View>
-            <SettingRow icon="bell-outline" label="Notifications" sub="Routine reminders & tips" type="switch" val={isNotifications} onVal={setIsNotifications} />
-            <SettingRow icon="moon-waning-crescent" label="Dark Mode" sub="Toggle theme appearance" type="switch" val={isDarkMode} onVal={setIsDarkMode} />
-            <SettingRow icon="target-variant" label="Health Goals" sub="Update your fitness targets" />
-            <SettingRow icon="link-variant" label="Workout Integration" sub="Connect with fitness apps" />
-            <SettingRow icon="shield-check-outline" label="Privacy & Data" sub="Manage your data & privacy" />
-            <SettingRow icon="help-circle-outline" label="Help & Support" sub="FAQ, contact, and feedback" />
+            <SettingRow icon="bell-outline" label="Notifications" sub="Routine reminders & tips" type="switch" val={isNotifications} onVal={setIsNotifications} styles={styles} isDark={isDark} />
+            <SettingRow icon="moon-waning-crescent" label="Dark Mode" sub="Toggle theme appearance" type="switch" val={isDark} onVal={toggleTheme} styles={styles} isDark={isDark} />
+            <SettingRow icon="target-variant" label="Health Goals" sub="Update your fitness targets" styles={styles} isDark={isDark} />
+            <SettingRow icon="link-variant" label="Workout Integration" sub="Connect with fitness apps" styles={styles} isDark={isDark} />
+            <SettingRow icon="shield-check-outline" label="Privacy & Data" sub="Manage your data & privacy" styles={styles} isDark={isDark} />
+            <SettingRow icon="help-circle-outline" label="Help & Support" sub="FAQ, contact, and feedback" styles={styles} isDark={isDark} />
+            
+            <TouchableOpacity style={styles.signOutRow} onPress={handleLogout}>
+              <View style={styles.signOutIcon}><Icon name="logout" size={18} color="#EF4444" /></View>
+              <Text style={styles.signOutText}>Sign Out</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Nutrition Mode Banner */}
@@ -842,7 +849,7 @@ const ProfileScreen = () => {
 
 // --- Reusable Components ---
 
-const StatCard = ({ icon, val, label, color }: any) => (
+const StatCard = ({ icon, val, label, color, styles, isDark }: any) => (
   <View style={styles.statBox}>
     <Icon name={icon} size={22} color={color} />
     <Text style={styles.statVal}>{val}</Text>
@@ -851,43 +858,43 @@ const StatCard = ({ icon, val, label, color }: any) => (
   </View>
 );
 
-const AchItem = ({ icon, title, active, locked, color }: any) => (
+const AchItem = ({ icon, title, active, locked, color, styles, isDark }: any) => (
   <View style={styles.achBox}>
     <View style={[styles.achCircle, locked && styles.lockedCircle]}>
-      <Icon name={icon} size={26} color={active ? color : '#475569'} />
+      <Icon name={icon} size={26} color={active ? color : (isDark ? '#475569' : '#94A3B8')} />
       {active && <View style={styles.checkBadge}><Icon name="check" size={10} color="#000" /></View>}
-      {locked && <Icon name="lock" size={12} color="#94A3B8" style={styles.lockIcon} />}
+      {locked && <Icon name="lock" size={12} color={isDark ? '#94A3B8' : '#CBD5E1'} style={styles.lockIcon} />}
     </View>
-    <Text style={[styles.achTitle, locked && { color: '#64748B' }]}>{title}</Text>
+    <Text style={[styles.achTitle, locked && { color: isDark ? '#64748B' : '#94A3B8' }]}>{title}</Text>
   </View>
 );
 
-const SettingRow = ({ icon, label, sub, type, val, onVal }: any) => (
+const SettingRow = ({ icon, label, sub, type, val, onVal, styles, isDark }: any) => (
   <TouchableOpacity style={styles.settingRow}>
     <View style={styles.flexRow}>
-      <Icon name={icon} size={22} color="#94A3B8" />
+      <Icon name={icon} size={22} color={isDark ? '#94A3B8' : '#64748B'} />
       <View style={{ marginLeft: 16, flex: 1 }}>
         <Text style={styles.settingLabelText}>{label}</Text>
         <Text style={styles.settingSubText}>{sub}</Text>
       </View>
       {type === 'switch' ? (
-        <Switch value={val} onValueChange={onVal} trackColor={{ false: '#333', true: '#22C55E' }} thumbColor="#FFF" />
+        <Switch value={val} onValueChange={onVal} trackColor={{ false: isDark ? '#333' : '#E2E8F0', true: '#22C55E' }} thumbColor="#FFF" />
       ) : (
-        <Icon name="chevron-right" size={20} color="#475569" />
+        <Icon name="chevron-right" size={20} color={isDark ? '#475569' : '#CBD5E1'} />
       )}
     </View>
   </TouchableOpacity>
 );
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#090909' },
+const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: isDark ? '#090909' : '#F8FAFC' },
   scrollContent: { paddingBottom: 20 },
   headerBg: { height: 260, width: '100%' },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 16 },
+  overlay: { flex: 1, backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)', paddingHorizontal: 16 },
   topNav: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Platform.OS === 'ios' ? 10 : 40 },
   profileRow: { flexDirection: 'row', alignItems: 'center', marginTop: 25 },
   avatarWrapper: { position: 'relative' },
-  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(21, 128, 61, 0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#86EFAC' },
+  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: isDark ? 'rgba(21, 128, 61, 0.5)' : 'rgba(34, 197, 94, 0.2)', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#86EFAC' },
   avatarText: { fontSize: 40, color: '#FFF', fontWeight: 'bold' },
   camBtn: { position: 'absolute', bottom: 5, right: 0, backgroundColor: '#000', padding: 4, borderRadius: 10, borderWidth: 1, borderColor: '#333' },
   userMeta: { marginLeft: 16, flex: 1 },
@@ -899,38 +906,41 @@ const styles = StyleSheet.create({
   infoText: { fontSize: 13, color: '#CBD5E1', marginLeft: 8 },
   contentBody: { paddingHorizontal: 16, marginTop: -20 },
   statsGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  statBox: { width: (width - 60) / 4, backgroundColor: '#161616', padding: 12, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#262626' },
-  statVal: { fontSize: 20, fontWeight: 'bold', color: '#FFF', marginTop: 8 },
-  statLabel: { fontSize: 7, color: '#94A3B8', fontWeight: 'bold', textAlign: 'center', marginTop: 4 },
+  statBox: { width: (width - 60) / 4, backgroundColor: isDark ? '#161616' : '#FFF', padding: 12, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: isDark ? '#262626' : '#F1F5F9', elevation: isDark ? 0 : 2 },
+  statVal: { fontSize: 20, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B', marginTop: 8 },
+  statLabel: { fontSize: 7, color: isDark ? '#94A3B8' : '#64748B', fontWeight: 'bold', textAlign: 'center', marginTop: 4 },
   statLine: { height: 2, width: '70%', borderRadius: 1, marginTop: 8 },
-  card: { backgroundColor: '#161616', borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#262626' },
+  card: { backgroundColor: isDark ? '#161616' : '#FFF', borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: isDark ? '#262626' : '#F1F5F9', elevation: isDark ? 0 : 2 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   flexRow: { flexDirection: 'row', alignItems: 'center' },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFF', marginLeft: 10 },
-  weightBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(34, 197, 94, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  weightBadgeText: { color: '#86EFAC', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },
+  cardTitle: { fontSize: 16, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B', marginLeft: 10 },
+  weightBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? 'rgba(34, 197, 94, 0.1)' : '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  weightBadgeText: { color: '#22C55E', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },
   chartWrapper: { flexDirection: 'row', height: 140 },
   yAxis: { justifyContent: 'space-between', paddingBottom: 25 },
-  axisLabel: { color: '#475569', fontSize: 10, fontWeight: 'bold' },
+  axisLabel: { color: isDark ? '#475569' : '#94A3B8', fontSize: 10, fontWeight: 'bold' },
   chartArea: { flex: 1, marginLeft: 10, justifyContent: 'flex-end' },
   xAxis: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  chartDropdown: { position: 'absolute', top: -30, right: 0, backgroundColor: '#262626', padding: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center' },
-  dropdownLabel: { color: '#FFF', fontSize: 11, marginRight: 4 },
+  chartDropdown: { position: 'absolute', top: -30, right: 0, backgroundColor: isDark ? '#262626' : '#F8FAFC', padding: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: isDark ? '#333' : '#E2E8F0' },
+  dropdownLabel: { color: isDark ? '#FFF' : '#64748B', fontSize: 11, marginRight: 4 },
   achievementsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   earnedCount: { color: '#94A3B8', fontSize: 12 },
   achBox: { width: '31%', alignItems: 'center', marginBottom: 20 },
-  achCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#1A1A1A', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#4ADE80' },
-  lockedCircle: { borderColor: '#334155' },
+  achCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: isDark ? '#1A1A1A' : '#F8FAFC', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#4ADE80' },
+  lockedCircle: { borderColor: isDark ? '#334155' : '#E2E8F0' },
   checkBadge: { position: 'absolute', top: -2, right: -2, backgroundColor: '#86EFAC', borderRadius: 10, padding: 2 },
   lockIcon: { position: 'absolute', top: 5, right: 5 },
-  achTitle: { color: '#FFF', fontSize: 10, marginTop: 8, textAlign: 'center', fontWeight: '600' },
-  settingRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#262626' },
-  settingLabelText: { fontSize: 15, color: '#FFF', fontWeight: '500' },
-  settingSubText: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  achTitle: { color: isDark ? '#FFF' : '#1E293B', fontSize: 10, marginTop: 8, textAlign: 'center', fontWeight: '600' },
+  settingRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: isDark ? '#262626' : '#F1F5F9' },
+  settingLabelText: { fontSize: 15, color: isDark ? '#FFF' : '#1E293B', fontWeight: '500' },
+  settingSubText: { fontSize: 12, color: isDark ? '#64748B' : '#94A3B8', marginTop: 2 },
+  signOutRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15, paddingVertical: 10, borderTopWidth: 1, borderTopColor: isDark ? '#262626' : '#F1F5F9' },
+  signOutIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: isDark ? '#2D1616' : '#FEF2F2', justifyContent: 'center', alignItems: 'center' },
+  signOutText: { color: '#EF4444', fontWeight: 'bold', marginLeft: 15, fontSize: 14 },
   bannerBg: { marginTop: 10, overflow: 'hidden' },
-  bannerOverlay: { backgroundColor: 'rgba(6, 78, 59, 0.7)', padding: 20, borderRadius: 20 },
+  bannerOverlay: { backgroundColor: isDark ? 'rgba(6, 78, 59, 0.7)' : 'rgba(34, 197, 94, 0.8)', padding: 20, borderRadius: 20 },
   bannerSub: { color: '#FFF', fontSize: 14 },
-  bannerTitle: { color: '#86EFAC', fontSize: 22, fontWeight: 'bold', marginVertical: 4 },
+  bannerTitle: { color: '#FFF', fontSize: 22, fontWeight: 'bold', marginVertical: 4 },
   bannerDesc: { color: '#E2E8F0', fontSize: 12, lineHeight: 18, marginBottom: 15, maxWidth: '80%' },
   bannerBtn: { backgroundColor: '#FFF', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, alignSelf: 'flex-start' },
   bannerBtnText: { color: '#000', fontWeight: 'bold', fontSize: 12 },
