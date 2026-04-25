@@ -25,7 +25,8 @@ const BeautiCareTabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        lazy: false,
+        lazy: true,
+        detachInactiveScreens: true,
         tabBarHideOnKeyboard: true,
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: ACTIVE_COLOR,

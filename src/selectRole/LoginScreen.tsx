@@ -14,7 +14,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  InteractionManager,
+  ActivityIndicator
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -42,6 +44,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPassFocused, setIsPassFocused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const styles = React.useMemo(() => createDynamicStyles(isDark, accent), [isDark, accent]);
 
@@ -70,10 +73,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   }, []);
 
   const handleLogin = () => {
-    if (!email.trim() || !password.trim()) {
-      return;
-    }
-    navigation.reset({ index: 0, routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] });
+    if (!email.trim() || !password.trim()) return;
+    
+    // Direct reset for instant redirection
+    navigation.reset({ 
+      index: 0, 
+      routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] 
+    });
   };
 
   const onGoogleButtonPress = async () => {
@@ -236,7 +242,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
                 {/* Main Action Button */}
                 {renderAnimatedView(3, (
                   <TouchableOpacity 
-                    activeOpacity={0.9} 
+                    activeOpacity={0.7} 
                     onPress={handleLogin} 
                     disabled={!email.trim() || !password.trim()}
                     style={[styles.loginBtnWrapper, (!email.trim() || !password.trim()) && { opacity: 0.5, elevation: 0, shadowOpacity: 0 }]}
