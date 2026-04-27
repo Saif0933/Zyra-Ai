@@ -646,9 +646,7 @@ import React from 'react';
 import {
   Alert,
   Dimensions,
-  Image,
   ImageBackground,
-  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -658,7 +656,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import Svg, { Circle, Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Path, Stop, LinearGradient as SvgGradient } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 
