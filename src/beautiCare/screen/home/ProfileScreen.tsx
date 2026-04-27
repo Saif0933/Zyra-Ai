@@ -46,7 +46,7 @@ const BeautiCareProfileScreen = () => {
         
         {/* Header Section with Image Background */}
         <ImageBackground 
-          source={require('../../../../assets/food_bg.jpg')} 
+          source={require('../../../../assets/product.jpg')} 
           style={styles.headerBg}
           resizeMode="cover"
         >
@@ -178,7 +178,7 @@ const BeautiCareProfileScreen = () => {
 
           {/* Premium Banner */}
           <ImageBackground 
-            source={require('../../../../assets/food_bg.jpg')} 
+            source={require('../../../../assets/copyspec.jpg')} 
             style={styles.bannerBg} 
             imageStyle={{ borderRadius: 20 }}
           >
