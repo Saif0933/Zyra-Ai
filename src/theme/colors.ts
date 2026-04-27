@@ -27,6 +27,7 @@ export const lightColors = {
   transparent: 'transparent',
   logFoodBtn: '#10B981',
   logFoodText: '#FFFFFF',
+  recentItemBg : '#1F2937',
 };
 
 export const darkColors = {
