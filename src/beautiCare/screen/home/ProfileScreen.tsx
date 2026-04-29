@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Alert,
   Dimensions,
+  Image,
   ImageBackground,
   SafeAreaView,
   ScrollView,
