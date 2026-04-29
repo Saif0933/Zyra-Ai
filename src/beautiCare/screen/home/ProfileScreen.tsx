@@ -193,9 +193,9 @@ const BeautiCareProfileScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Premium Banner */}
+          {/* Nutrition Mode Banner */}
           <ImageBackground 
-            source={require('../../../../assets/product.webp')} 
+            source={require('../../../../assets/food_bg.jpg')} 
             style={styles.bannerBg} 
             imageStyle={{ borderRadius: 20 }}
           >
@@ -316,7 +316,7 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   signOutIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: isDark ? '#2D1616' : '#FEF2F2', justifyContent: 'center', alignItems: 'center' },
   signOutText: { color: '#EF4444', fontWeight: 'bold', marginLeft: 15, fontSize: 14 },
   bannerBg: { marginTop: 10, overflow: 'hidden' },
-  bannerOverlay: { backgroundColor: isDark ? 'rgba(76, 29, 149, 0.7)' : 'rgba(244, 63, 94, 0.8)', padding: 20, borderRadius: 20 },
+  bannerOverlay: { backgroundColor: isDark ? 'rgba(21, 128, 61, 0.7)' : 'rgba(34, 197, 94, 0.8)', padding: 20, borderRadius: 20 },
   bannerSub: { color: '#FFF', fontSize: 14 },
   bannerTitle: { color: '#FFF', fontSize: 22, fontWeight: 'bold', marginVertical: 4 },
   bannerDesc: { color: '#E2E8F0', fontSize: 12, lineHeight: 18, marginBottom: 15, maxWidth: '80%' },
