@@ -242,7 +242,7 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   container: { flex: 1, backgroundColor: isDark ? '#090909' : '#F8FAFC' },
   scrollContent: { paddingBottom: 20 },
   headerBg: { height: 260, width: '100%' },
-  overlay: { flex: 1, backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)', paddingHorizontal: 16, justifyContent: 'flex-end', paddingBottom: 35 },
+  overlay: { height: 260, backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)', paddingHorizontal: 16, justifyContent: 'flex-end', paddingBottom: 35 },
   profileRow: { flexDirection: 'row', alignItems: 'center' },
   avatarWrapper: { position: 'relative' },
   avatar: { width: 70, height: 70, borderRadius: 35, backgroundColor: isDark ? 'rgba(244, 63, 94, 0.5)' : 'rgba(253, 164, 175, 0.2)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#FDA4AF' },
