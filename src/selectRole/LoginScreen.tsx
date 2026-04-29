@@ -44,7 +44,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPassFocused, setIsPassFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isManualLoading, setIsManualLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   const styles = React.useMemo(() => createDynamicStyles(isDark, accent), [isDark, accent]);
 
@@ -75,15 +76,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) return;
     
-    // Direct reset for instant redirection
-    navigation.reset({ 
-      index: 0, 
-      routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] 
-    });
+    setIsManualLoading(true);
+    
+    // Brief delay to allow the loading animation to be visible
+    setTimeout(() => {
+      navigation.reset({ 
+        index: 0, 
+        routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] 
+      });
+    }, 600); // 600ms is fast but still shows the spinner
   };
 
   const onGoogleButtonPress = async () => {
     try {
+      setIsGoogleLoading(true);
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       
       // Attempting Sign-In
@@ -91,6 +97,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
       const idToken = result.data?.idToken || (result as any).idToken || (result as any).user?.idToken;
       
       if (!idToken) {
+        setIsGoogleLoading(false);
         console.log('Google Sign-In Success but no token:', JSON.stringify(result, null, 2));
         throw new Error('DEVELOPER_ERROR: ID Token missing. Ensure Web Client ID is correctly set in Firebase.');
       }
@@ -103,6 +110,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
         routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }],
       });
     } catch (error: any) {
+      setIsGoogleLoading(false);
       console.log('Google Sign-In Error Details:', JSON.stringify(error, null, 2));
       
       if (error.code === '12501') {
@@ -244,8 +252,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
                   <TouchableOpacity 
                     activeOpacity={0.7} 
                     onPress={handleLogin} 
-                    disabled={!email.trim() || !password.trim()}
-                    style={[styles.loginBtnWrapper, (!email.trim() || !password.trim()) && { opacity: 0.5, elevation: 0, shadowOpacity: 0 }]}
+                    disabled={isManualLoading || !email.trim() || !password.trim()}
+                    style={[styles.loginBtnWrapper, (isManualLoading || !email.trim() || !password.trim()) && { opacity: 0.5, elevation: 0, shadowOpacity: 0 }]}
                   >
                     <LinearGradient 
                       colors={(!email.trim() || !password.trim()) ? ['#94A3B8', '#64748B'] : themeGradients} 
@@ -253,8 +261,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
                       start={{x:0, y:0}} 
                       end={{x:1, y:0}}
                     >
-                      <Text style={styles.loginBtnText}>Enter Workspace</Text>
-                      <Icon name="arrow-right" size={20} color="#FFF" />
+                      {isManualLoading ? (
+                        <ActivityIndicator color="#FFF" size="small" />
+                      ) : (
+                        <>
+                          <Text style={styles.loginBtnText}>Enter Workspace</Text>
+                          <Icon name="arrow-right" size={20} color="#FFF" />
+                        </>
+                      )}
                     </LinearGradient>
                   </TouchableOpacity>
                 ))}
@@ -271,12 +285,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
                     <TouchableOpacity 
                       activeOpacity={0.8} 
                       onPress={onGoogleButtonPress}
+                      disabled={isGoogleLoading}
                       onPressIn={() => Animated.spring(anims[4], { toValue: 0.96, useNativeDriver: true }).start()}
                       onPressOut={() => Animated.spring(anims[4], { toValue: 1, useNativeDriver: true }).start()}
                     >
-                      <Animated.View style={[styles.googleButton, { transform: [{ scale: anims[4] }] }]}>
-                         <Icon name="google" size={24} color={isDark ? '#FFF' : '#000'} />
-                         <Text style={styles.googleLabel}>Continue with Google</Text>
+                      <Animated.View style={[styles.googleButton, { transform: [{ scale: anims[4] }] }, isGoogleLoading && { opacity: 0.6 }]}>
+                         {isGoogleLoading ? (
+                           <ActivityIndicator color={isDark ? '#FFF' : accent} size="small" />
+                         ) : (
+                           <>
+                             <Icon name="google" size={24} color={isDark ? '#FFF' : '#000'} />
+                             <Text style={styles.googleLabel}>Continue with Google</Text>
+                           </>
+                         )}
                       </Animated.View>
                     </TouchableOpacity>
                   </View>
