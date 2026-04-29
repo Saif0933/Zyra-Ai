@@ -201,9 +201,9 @@ const BeautiCareProfileScreen = () => {
           >
             <View style={styles.bannerOverlay}>
               <Text style={styles.bannerSub}>Switch to</Text>
-              <Text style={styles.bannerTitle}>Skine Care Mode</Text>
-              <Text style={styles.bannerDesc}>Get personalized recommendations and insights for your skin concerns.</Text>
-              <TouchableOpacity style={styles.bannerBtn}>
+              <Text style={styles.bannerTitle}>Nutrition Mode</Text>
+              <Text style={styles.bannerDesc}>Get personalized meal tracking, macro insights, and nutrition plans tailored to your goals.</Text>
+              <TouchableOpacity style={styles.bannerBtn} onPress={() => navigation.navigate('HealthAiMain' as never)}>
                 <Text style={styles.bannerBtnText}>Switch Now  {'>'}</Text>
               </TouchableOpacity>
             </View>
