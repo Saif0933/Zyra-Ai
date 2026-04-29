@@ -381,6 +381,7 @@ import {
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ImageLabeling from '@react-native-ml-kit/image-labeling';
 // import { useAddMeal } from '../../../auth/hook/gymGole/useGym';
 // import { useCreateScan } from '../../../auth/hook/scanFood/useScan';
 import { useTheme } from '../../../theme/ThemeContext';
@@ -420,25 +421,53 @@ const FoodScannerScreen = () => {
     }
   };
 
-  const processImage = (uri: string) => {
+  const processImage = async (uri: string) => {
     setImageUri(uri);
     setIsAnalyzing(true);
     setAnalysisResult(null);
 
-    // Mock AI Analysis (REVERTED)
-    setTimeout(() => {
+    try {
+      // 1. Run ML Kit Image Labeling
+      const labels = await ImageLabeling.label(uri);
+      
+      // 2. Food Validation Keywords
+      const foodKeywords = [
+        'food', 'vegetable', 'fruit', 'meat', 'dish', 'cuisine', 'meal', 
+        'ingredient', 'salad', 'chicken', 'beef', 'pork', 'fish', 'bread', 
+        'pasta', 'rice', 'egg', 'cheese', 'dessert', 'snack', 'drink', 
+        'beverage', 'produce', 'plant', 'seafood', 'baked goods'
+      ];
+      
+      const isFood = labels.some(label => foodKeywords.includes(label.text.toLowerCase()));
+      
+      if (!isFood || labels.length === 0) {
+        Alert.alert('Invalid Image', 'This does not appear to be food. Please scan a valid food item or meal.');
         setIsAnalyzing(false);
-        setAnalysisResult({
-            productName: 'Grilled Chicken Salad',
-            safetyScore: 92,
-            calories: 345,
-            protein: 28,
-            carbs: 12,
-            fats: 8,
-            scanType: 'MEAL',
-            recommendation: 'Excellent'
-        });
-    }, 2000);
+        setImageUri(null);
+        return;
+      }
+
+      // 3. Mock AI Analysis
+      setTimeout(() => {
+          setIsAnalyzing(false);
+          setAnalysisResult({
+              productName: 'Grilled Chicken Salad',
+              safetyScore: 92,
+              calories: 345,
+              protein: 28,
+              carbs: 12,
+              fats: 8,
+              scanType: 'MEAL',
+              recommendation: 'Excellent'
+          });
+      }, 1500);
+
+    } catch (error) {
+      console.log('Image Labeling Error:', error);
+      Alert.alert('Scan Failed', 'Could not analyze the image.');
+      setIsAnalyzing(false);
+      setImageUri(null);
+    }
   };
 
   const handleLogMeal = () => {

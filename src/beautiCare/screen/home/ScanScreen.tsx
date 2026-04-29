@@ -9,9 +9,11 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Alert
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
@@ -42,27 +44,67 @@ const BeautiCareScanScreen = () => {
     }
   };
 
-  const processImage = (uri: string) => {
+  const processImage = async (uri: string) => {
     setImageUri(uri);
     setIsAnalyzing(true);
     setAnalysisResult(null);
 
-    // Mock AI Analysis for now
-    setTimeout(() => {
-      const result = {
-        name: 'Glow Vit-C Serum',
-        safetyScore: 92,
-        harmLevel: 'Low',
-        irritants: 0,
-        keyIngredients: 'Ascorbic Acid, Niacinamide',
-        benefit: 'Brightening & Anti-aging',
-        ph: '3.5',
-        rating: 'Safe',
-      };
+    try {
+      // 1. Run ML Kit Text Recognition
+      const result = await TextRecognition.recognize(uri);
+      const text = result.text.toLowerCase();
 
+      // 2. Strict Skincare Validation Keywords
+      const strictKeywords = [
+        'serum', 'moisturizer', 'cleanser', 'toner', 'sunscreen', 'spf', 
+        'hyaluronic', 'niacinamide', 'salicylic', 'glycolic', 'retinol', 
+        'peptides', 'dermatologist', 'exfoliant', 'lotion', 'cream', 'skincare'
+      ];
+      
+      if (!text || text.trim().length === 0) {
+        Alert.alert('No Text Detected', 'We could not read any text on this image. Please ensure the product label is clearly visible and in focus.');
+        setIsAnalyzing(false);
+        setImageUri(null);
+        return;
+      }
+
+      // Check for exact word matches to avoid accidental substring matches
+      const isSkincare = strictKeywords.some(keyword => {
+        const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+        return regex.test(text);
+      });
+      
+      if (!isSkincare) {
+        Alert.alert('Invalid Product', 'This does not appear to be a skincare product based on its text label. Please scan a valid skincare product.');
+        setIsAnalyzing(false);
+        setImageUri(null);
+        return;
+      }
+
+      // 3. Provide Product Information (Mocked for now since backend is pending)
+      setTimeout(() => {
+        const mockResult = {
+          name: 'Glow Vit-C Serum',
+          safetyScore: 92,
+          harmLevel: 'Low',
+          irritants: 0,
+          keyIngredients: 'Ascorbic Acid, Niacinamide',
+          benefit: 'Brightening & Anti-aging',
+          ph: '3.5',
+          rating: 'Safe',
+          oilySkin: 'Good', // Added field
+        };
+
+        setIsAnalyzing(false);
+        setAnalysisResult(mockResult);
+      }, 1500);
+
+    } catch (error) {
+      console.log('Text Recognition Error:', error);
+      Alert.alert('Scan Failed', 'Could not analyze the image text.');
       setIsAnalyzing(false);
-      setAnalysisResult(result);
-    }, 2000);
+      setImageUri(null);
+    }
   };
 
   return (
@@ -164,6 +206,7 @@ const BeautiCareScanScreen = () => {
               <ResultStat label="IRRITANTS" value={analysisResult.irritants} unit="" icon="flask-outline" color="#F59E0B" styles={styles} />
               <ResultStat label="pH LEVEL" value={analysisResult.ph} unit="" icon="water-outline" color="#0EA5E9" styles={styles} />
               <ResultStat label="RATING" value={analysisResult.rating} unit="" icon="shield-check" color="#22C55E" styles={styles} />
+              <ResultStat label="OILY SKIN" value={analysisResult.oilySkin} unit="" icon="face-woman" color="#A855F7" styles={styles} />
             </View>
 
             <View style={styles.detailSection}>
