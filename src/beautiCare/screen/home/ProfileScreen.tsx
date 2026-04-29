@@ -32,7 +32,24 @@ const BeautiCareProfileScreen = () => {
         text: 'Logout',
         style: 'destructive',
         onPress: () => {
-          navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'SelectRole' }] }));
+          // Tab screen's getParent() gives RootNavigator directly
+          const rootNav = navigation.getParent();
+          if (rootNav) {
+            rootNav.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'SelectRole' }],
+              })
+            );
+          } else {
+            // Fallback
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'SelectRole' }],
+              })
+            );
+          }
         },
       },
     ]);
@@ -183,11 +200,11 @@ const BeautiCareProfileScreen = () => {
             imageStyle={{ borderRadius: 20 }}
           >
             <View style={styles.bannerOverlay}>
-              <Text style={styles.bannerSub}>Upgrade to</Text>
-              <Text style={styles.bannerTitle}>Glow Premium</Text>
-              <Text style={styles.bannerDesc}>Unlock advanced ingredient analysis, personalized routine AI, and dermatologist-backed insights.</Text>
+              <Text style={styles.bannerSub}>Switch to</Text>
+              <Text style={styles.bannerTitle}>Skine Care Mode</Text>
+              <Text style={styles.bannerDesc}>Get personalized recommendations and insights for your skin concerns.</Text>
               <TouchableOpacity style={styles.bannerBtn}>
-                <Text style={styles.bannerBtnText}>Explore Plans  {'>'}</Text>
+                <Text style={styles.bannerBtnText}>Switch Now  {'>'}</Text>
               </TouchableOpacity>
             </View>
           </ImageBackground>

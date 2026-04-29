@@ -675,7 +675,16 @@ const ProfileScreen = () => {
         text: 'Logout',
         style: 'destructive',
         onPress: () => {
-          navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'SelectRole' }] }));
+          const rootNav = navigation.getParent();
+          if (rootNav) {
+            rootNav.dispatch(
+              CommonActions.reset({ index: 0, routes: [{ name: 'SelectRole' }] })
+            );
+          } else {
+            navigation.dispatch(
+              CommonActions.reset({ index: 0, routes: [{ name: 'SelectRole' }] })
+            );
+          }
         },
       },
     ]);
