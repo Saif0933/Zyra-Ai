@@ -445,6 +445,19 @@ import { useTheme } from '../../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
+const HEALTH_TIPS = [
+  "Consistency is better than perfection. Keep moving, stay hydrated, and your body will thank you.",
+  "Small steps lead to big results. Try to walk 10 minutes more today than yesterday.",
+  "Hydration is key. Drink a glass of water first thing in the morning to kickstart your metabolism.",
+  "Sleep is the foundation of health. Aim for 7-8 hours of quality rest tonight.",
+  "Eat the rainbow. Including various colorful vegetables in your meals ensures a range of nutrients.",
+  "Posture matters. Take a moment to sit up straight and relax your shoulders.",
+  "Mindful eating. Pay attention to your food and chew slowly to improve digestion and satisfaction.",
+  "Stay active throughout the day. A 5-minute stretch every hour can work wonders.",
+  "Focus on your breathing. Take 3 deep breaths right now to reduce stress.",
+  "Listen to your body. Rest when you're tired and push yourself when you're energized."
+];
+
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -476,6 +489,8 @@ const HomeScreen = () => {
   const { colors, isDark } = useTheme();
   const [isExpanded, setIsExpanded] = useState(true);
 
+  const dailyTip = HEALTH_TIPS[new Date().getDate() % HEALTH_TIPS.length];
+
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
     setIsExpanded(!isExpanded);
@@ -492,34 +507,35 @@ const HomeScreen = () => {
         {/* Header with Profile & Greeting */}
         <View style={styles.headerSection}>
           <Text style={[styles.greetingText, { color: isDark ? '#AAA' : '#666' }]}>Good Morning,</Text>
-          <View style={styles.headerNameRow}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80' }} 
-              style={styles.headerAvatar} 
-            />
-            <Text style={[styles.userName, { color: isDark ? '#FFF' : '#1C1C1E' }]}>Saif</Text>
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerNameRow}>
+              <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80' }} 
+                style={styles.headerAvatar} 
+              />
+              <Text style={[styles.userName, { color: isDark ? '#FFF' : '#1C1C1E' }]}>Saif</Text>
+            </View>
+
+            <View style={styles.headerRightActions}>
+              <View style={[styles.statusBadge, { backgroundColor: isDark ? '#1E2E2A' : '#E8F6F3' }]}>
+                <Icon name="crown" size={14} color="#5BA199" />
+                <Text style={styles.statusText}>3 days left</Text>
+              </View>
+              <TouchableOpacity style={[styles.calendarIcon, { backgroundColor: isDark ? '#1E1E1E' : '#FFF' }]}>
+                <Icon name="calendar-month-outline" size={20} color={isDark ? '#FFF' : '#666'} />
+              </TouchableOpacity>
+            </View>
           </View>
           
-          <View style={[styles.tipCard, { backgroundColor: isDark ? '#1E1E1E' : '#E8F6F3' }]}>
+          <View style={styles.tipContainer}>
             <View style={styles.tipHeader}>
-              <Icon name="lightbulb-on" size={20} color="#5BA199" />
-              <Text style={styles.tipTitle}>Daily Health Tip</Text>
+              <Icon name="lightbulb-variant-outline" size={18} color="#5BA199" />
+              <Text style={styles.tipTitle}>HEALTH TIP OF THE DAY</Text>
             </View>
-            <Text style={[styles.tipThought, { color: isDark ? '#CCC' : '#444' }]}>
-              "Consistency is better than perfection. Keep moving, stay hydrated, and your body will thank you."
+            <Text style={[styles.tipThought, { color: isDark ? '#AAA' : '#555' }]}>
+              "{dailyTip}"
             </Text>
           </View>
-        </View>
-
-        {/* Profile Row Status */}
-        <View style={styles.profileRow}>
-          <View style={styles.statusBadge}>
-            <Icon name="crown" size={14} color="#5BA199" />
-            <Text style={styles.statusText}>3 days left</Text>
-          </View>
-          <TouchableOpacity style={[styles.calendarIcon, { backgroundColor: isDark ? '#1E1E1E' : '#FFF' }]}>
-            <Icon name="calendar-month-outline" size={24} color={isDark ? '#FFF' : '#666'} />
-          </TouchableOpacity>
         </View>
 
         <Text style={[styles.sectionTitle, { color: isDark ? '#FFF' : '#333' }]}>Your Trackers</Text>
@@ -701,32 +717,30 @@ const MacroCircle: React.FC<MacroCircleProps> = ({ label, value, color }) => (
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerSection: { paddingTop: 20, marginBottom: 10, paddingHorizontal: 20 },
+  headerSection: { paddingTop: 20, marginBottom: 10, paddingHorizontal: 15 },
   greetingText: { fontSize: 16, fontWeight: '500', marginBottom: 5 },
-  headerNameRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 },
+  headerRightActions: { flexDirection: 'row', alignItems: 'center' },
+  headerNameRow: { flexDirection: 'row', alignItems: 'center' },
   headerAvatar: { width: 36, height: 36, borderRadius: 18, marginRight: 12, backgroundColor: '#EEE' },
   userName: { fontSize: 26, fontWeight: 'bold' },
-  tipCard: { padding: 15, borderRadius: 20, elevation: 2, shadowColor: '#000', shadowOpacity: 0.05 },
-  tipHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  tipTitle: { color: '#5BA199', fontWeight: 'bold', marginLeft: 8, fontSize: 14 },
-  tipThought: { fontSize: 14, fontStyle: 'italic', lineHeight: 20 },
+  tipContainer: { marginTop: 5, paddingVertical: 5 },
+  tipHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  tipTitle: { color: '#5BA199', fontWeight: 'bold', marginLeft: 6, fontSize: 11, letterSpacing: 1 },
+  tipThought: { fontSize: 15, fontStyle: 'italic', lineHeight: 22, fontWeight: '500' },
   
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 10 },
-  profileRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
-  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEE' },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F6F3',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginLeft: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#D1E8E4'
   },
-  statusText: { color: '#5BA199', fontWeight: 'bold', fontSize: 12 },
-  calendarIcon: { marginLeft: 'auto', width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+  statusText: { color: '#5BA199', fontWeight: 'bold', fontSize: 11 },
+  calendarIcon: { marginLeft: 10, width: 30, height: 27, borderRadius: 9, justifyContent: 'center', alignItems: 'center', elevation: 2 },
 
   sectionTitle: { fontSize: 20, fontWeight: 'bold', marginVertical: 15 },
   mainCard: {
