@@ -364,6 +364,7 @@
 // export default ClinicalCurator;
 
 
+import ImageLabeling from '@react-native-ml-kit/image-labeling';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
@@ -371,7 +372,6 @@ import {
   Alert,
   Dimensions,
   Image,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -381,9 +381,9 @@ import {
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ImageLabeling from '@react-native-ml-kit/image-labeling';
 // import { useAddMeal } from '../../../auth/hook/gymGole/useGym';
 // import { useCreateScan } from '../../../auth/hook/scanFood/useScan';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');

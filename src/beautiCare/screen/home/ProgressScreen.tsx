@@ -3,7 +3,6 @@ import {
   Animated,
   Dimensions,
   Easing,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 // import { useLogRoutine } from '../../../auth/hook/beauticare/useBeauticare';

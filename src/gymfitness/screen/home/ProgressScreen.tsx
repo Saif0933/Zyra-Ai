@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {
+  Animated,
   Dimensions,
-  SafeAreaView,
+  Easing,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  Animated,
-  Easing
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 
