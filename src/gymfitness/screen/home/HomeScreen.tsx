@@ -440,6 +440,16 @@ import {
   UIManager,
   View,
 } from 'react-native';
+import Animated, {
+  Easing,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+  withRepeat,
+  withSequence
+} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../../theme/ThemeContext';
 
@@ -491,6 +501,91 @@ const HomeScreen = () => {
 
   const dailyTip = HEALTH_TIPS[new Date().getDate() % HEALTH_TIPS.length];
 
+  const AnimatedWord = ({ word, index }: { word: string, index: number }) => {
+    const wordProgress = useSharedValue(0);
+    const wordColorProgress = useSharedValue(0);
+    const wordPhysicsY = useSharedValue(0);
+
+    React.useEffect(() => {
+      // Staggered Reveal
+      wordProgress.value = withDelay(index * 250, withTiming(1, { 
+        duration: 1200, 
+        easing: Easing.out(Easing.quad) 
+      }));
+
+      // Staggered Color change
+      wordColorProgress.value = withDelay(1200 + index * 250, withTiming(1, { duration: 800 }));
+
+      // Staggered Floating Physics
+      wordPhysicsY.value = withDelay(index * 300, withRepeat(
+        withSequence(
+          withTiming(8, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true
+      ));
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      opacity: wordProgress.value,
+      transform: [
+        { translateY: wordPhysicsY.value + (1 - wordProgress.value) * 15 },
+        { scale: 0.9 + wordProgress.value * 0.1 }
+      ],
+      color: interpolateColor(
+        wordColorProgress.value,
+        [0, 1],
+        [isDark ? '#AAA' : '#666', '#5BA199']
+      ),
+    }));
+
+    return (
+      <Animated.Text style={[styles.greetingText, animatedStyle, { marginRight: 10 }]}>
+        {word}
+      </Animated.Text>
+    );
+  };
+
+  const Particle = ({ index }: { index: number }) => {
+    const y = useSharedValue(0);
+    const x = useSharedValue(Math.random() * 100 - 50);
+    const opacity = useSharedValue(0.4);
+    const size = Math.random() * 4 + 2;
+
+    React.useEffect(() => {
+      const duration = Math.random() * 3000 + 3000; // 3-6s
+      const delay = Math.random() * 5000;
+      
+      y.value = withDelay(delay, withRepeat(
+        withTiming(-120, { duration, easing: Easing.linear }),
+        -1,
+        false
+      ));
+
+      opacity.value = withDelay(delay, withRepeat(
+        withTiming(0, { duration, easing: Easing.linear }),
+        -1,
+        false
+      ));
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ translateY: y.value }, { translateX: x.value }],
+      opacity: opacity.value,
+    }));
+
+    return (
+      <Animated.View 
+        style={[
+          styles.particle, 
+          animatedStyle, 
+          { width: size, height: size, borderRadius: size / 2, left: `${Math.random() * 100}%` }
+        ]} 
+      />
+    );
+  };
+
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
     setIsExpanded(!isExpanded);
@@ -506,7 +601,11 @@ const HomeScreen = () => {
       >
         {/* Header with Profile & Greeting */}
         <View style={styles.headerSection}>
-          <Text style={[styles.greetingText, { color: isDark ? '#AAA' : '#666' }]}>Good Morning,</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            {"Good Morning,".split(' ').map((word, i) => (
+              <AnimatedWord key={i} word={word} index={i} />
+            ))}
+          </View>
           <View style={styles.headerTopRow}>
             <View style={styles.headerNameRow}>
               <Image 
@@ -527,14 +626,22 @@ const HomeScreen = () => {
             </View>
           </View>
           
-          <View style={styles.tipContainer}>
+          <View style={[styles.tipContainer, { backgroundColor: isDark ? '#1A1A1A' : '#F0F9F8', overflow: 'hidden' }]}>
+            {/* Particle Background */}
+            {[...Array(12)].map((_, i) => <Particle key={i} index={i} />)}
+            
             <View style={styles.tipHeader}>
-              <Icon name="lightbulb-variant-outline" size={18} color="#5BA199" />
+              <View style={styles.tipIconCircle}>
+                <Icon name="lightbulb-on" size={16} color="#FFF" />
+              </View>
               <Text style={styles.tipTitle}>HEALTH TIP OF THE DAY</Text>
             </View>
-            <Text style={[styles.tipThought, { color: isDark ? '#AAA' : '#555' }]}>
-              "{dailyTip}"
-            </Text>
+            <View style={styles.tipContentRow}>
+              <Icon name="format-quote-open" size={20} color="#5BA199" style={styles.quoteIcon} />
+              <Text style={[styles.tipThought, { color: isDark ? '#CCC' : '#444' }]}>
+                {dailyTip}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -717,19 +824,47 @@ const MacroCircle: React.FC<MacroCircleProps> = ({ label, value, color }) => (
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerSection: { paddingTop: 20, marginBottom: 10, paddingHorizontal: 15 },
-  greetingText: { fontSize: 16, fontWeight: '500', marginBottom: 5 },
+  headerSection: { paddingTop: 20, marginBottom: 10, paddingHorizontal: 0 },
+  greetingText: { fontSize: 24, fontWeight: 'bold', marginBottom: 5 },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 },
   headerRightActions: { flexDirection: 'row', alignItems: 'center' },
   headerNameRow: { flexDirection: 'row', alignItems: 'center' },
   headerAvatar: { width: 36, height: 36, borderRadius: 18, marginRight: 12, backgroundColor: '#EEE' },
   userName: { fontSize: 26, fontWeight: 'bold' },
-  tipContainer: { marginTop: 5, paddingVertical: 5 },
-  tipHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  tipTitle: { color: '#5BA199', fontWeight: 'bold', marginLeft: 6, fontSize: 11, letterSpacing: 1 },
-  tipThought: { fontSize: 15, fontStyle: 'italic', lineHeight: 22, fontWeight: '500' },
+  tipContainer: { 
+    marginTop: 18, 
+    padding: 16, 
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#D1E8E4',
+    elevation: 2,
+    shadowColor: '#5BA199',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 }
+  },
+  tipIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#5BA199',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10
+  },
+  tipHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  tipTitle: { color: '#5BA199', fontWeight: 'bold', fontSize: 11, letterSpacing: 1.2 },
+  tipContentRow: { flexDirection: 'row' },
+  quoteIcon: { marginRight: 8, marginTop: -2, opacity: 0.6 },
+  tipThought: { flex: 1, fontSize: 14, fontStyle: 'italic', lineHeight: 22, fontWeight: '500' },
+  particle: {
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: '#5BA199',
+    opacity: 0.4,
+  },
   
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 10 },
+  scrollContent: { paddingHorizontal: 12, paddingBottom: 40, paddingTop: 10 },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
