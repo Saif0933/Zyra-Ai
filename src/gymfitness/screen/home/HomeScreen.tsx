@@ -9,7 +9,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Alert
+  Alert,
+  RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, Path, Rect, Stop, LinearGradient as SvgGradient, Text as SvgText } from 'react-native-svg';
@@ -22,6 +23,14 @@ const NutritionDashboard = () => {
   const navigation = useNavigation<any>();
   const { isDark } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   const handleLogMeal = async () => {
     try {
@@ -73,7 +82,18 @@ const NutritionDashboard = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            colors={['#22C55E']} // Green color matching your theme
+            tintColor={isDark ? '#FFF' : '#22C55E'} // For iOS
+          />
+        }
+      >
         
         {/* Main Calorie Card */}
         <View style={styles.calorieCard}>
