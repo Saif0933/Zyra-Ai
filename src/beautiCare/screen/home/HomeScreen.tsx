@@ -1,3 +1,4 @@
+import { launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
@@ -7,7 +8,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, Path, Rect, Stop, LinearGradient as SvgGradient, Text as SvgText } from 'react-native-svg';
@@ -29,6 +31,36 @@ const BeautyDashboard = () => {
   const navigation = useNavigation<any>();
   const { isDark } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
+
+  const handleScanProduct = async () => {
+    try {
+      const result = await launchCamera({
+        mediaType: 'photo',
+        quality: 0.8,
+        saveToPhotos: false,
+      });
+
+      if (result.didCancel) {
+        return;
+      }
+
+      if (result.errorCode) {
+        Alert.alert('Camera Error', result.errorMessage || 'Could not open camera');
+        return;
+      }
+
+      if (result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        if (uri) {
+          // Navigate to Scanner screen with the captured image URI
+          navigation.navigate('Scanner', { initialImageUri: uri });
+        }
+      }
+    } catch (error) {
+      console.error('Camera Launch Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred while opening the camera.');
+    }
+  };
 
   const latestMetrics = { hydration: 68, phLevel: 5.5, oiliness: 50 };
   const recentScans: BeautyScan[] = [
@@ -53,7 +85,7 @@ const BeautyDashboard = () => {
         <TouchableOpacity
           style={styles.logMealBtn}
           activeOpacity={0.8}
-          onPress={() => navigation.navigate('Scan')}
+          onPress={handleScanProduct}
         >
           <Icon name="plus" size={20} color="#FFF" />
           <Text style={styles.logMealText}>Scan Product</Text>

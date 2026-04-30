@@ -181,7 +181,7 @@ const BeautiCareProfileScreen = () => {
               </View>
             </View>
             <SettingRow icon="bell-outline" label="Notifications" sub="Routine reminders & safety alerts" type="switch" val={isNotifications} onVal={setIsNotifications} styles={styles} isDark={isDark} />
-            <SettingRow icon="moon-waning-crescent" label="Dark Mode" sub="Toggle theme appearance" type="switch" val={isDark} onVal={toggleTheme} styles={styles} isDark={isDark} />
+            {/* <SettingRow icon="moon-waning-crescent" label="Dark Mode" sub="Toggle theme appearance" type="switch" val={isDark} onVal={toggleTheme} styles={styles} isDark={isDark} /> */}
             <SettingRow icon="face-woman-shimmer-outline" label="Skin Profile" sub="Update your skin type & concerns" styles={styles} isDark={isDark} onPress={() => navigation.navigate('SkinProfile' as never)} />
             <SettingRow icon="bottle-tonic-plus" label="My Product Shelf" sub="Manage your scanned products" styles={styles} isDark={isDark} onPress={() => navigation.navigate('ProductShelf' as never)} />
             <SettingRow icon="shield-lock-outline" label="Privacy & Data" sub="Manage your data & privacy" styles={styles} isDark={isDark} />

@@ -365,8 +365,8 @@
 
 
 import ImageLabeling from '@react-native-ml-kit/image-labeling';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -390,11 +390,19 @@ const { width } = Dimensions.get('window');
 
 const FoodScannerScreen = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const { isDark } = useTheme();
   const styles = React.useMemo(() => createDynamicStyles(isDark), [isDark]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+
+  // Auto-process image if passed from Home Screen
+  useEffect(() => {
+    if (route.params?.initialImageUri) {
+      processImage(route.params.initialImageUri);
+    }
+  }, [route.params?.initialImageUri]);
 
   // const addMealMutation = useAddMeal();
   // const createScanMutation = useCreateScan();
