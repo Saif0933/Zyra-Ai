@@ -72,7 +72,6 @@ const NutriScanChat = () => {
           </TouchableOpacity>
           <View style={{ marginLeft: 12 }}>
             <Text style={styles.headerTitle}>AI Assistant</Text>
-            {/* <Text style={styles.headerSub}>Online • AI Powered</Text> */}
           </View>
         </View>
         {messages.length > 0 && (
@@ -110,7 +109,7 @@ const NutriScanChat = () => {
               </View>
 
               <View style={styles.welcomeTextContainer}>
-                <Text style={styles.mainTitle}>Ｔｙｐｅ ｓｏｍｅｔｈｉｎｇ ｔｏ ｓｔａｒｔ</Text>
+                <Text style={styles.mainTitle}>Type something to start</Text>
                 <Text style={styles.description}>
                   I can help with meal planning, nutrition advice, supplement recommendations, and achieving your fitness goals
                 </Text>
@@ -212,7 +211,7 @@ const NutriScanChat = () => {
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput 
-              placeholder="Ｔｙｐｅ ｓｏｍｅｔｈｉｎｇ ｔｏ ｓｔａｒｔ" 
+              placeholder="Type something to start" 
               placeholderTextColor="#94A3B8"
               style={styles.input}
               value={inputText}
@@ -297,6 +296,7 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     color: '#EF4444',
     fontSize: 12,
     fontWeight: 'bold',
+    fontFamily: 'serif',
   },
   logoContainer: {
     width: 44,
@@ -306,8 +306,8 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text },
-  headerSub: { fontSize: 12, color: colors.textSecondary },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text, letterSpacing: 1, fontFamily: 'serif' },
+  headerSub: { fontSize: 12, color: colors.textSecondary, letterSpacing: 0.5, fontFamily: 'serif' },
 
   scrollContent: { paddingHorizontal: 20, paddingTop: 40, paddingBottom: 150 },
 
@@ -335,14 +335,20 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
   },
 
   welcomeTextContainer: { alignItems: 'center', marginBottom: 30 },
-  mainTitle: { fontSize: 22, fontWeight: 'bold', color: colors.text, textAlign: 'center' },
+  mainTitle: { 
+    fontSize: 26, 
+    color: colors.text, 
+    textAlign: 'center', 
+    fontFamily: 'serif' 
+  },
   description: { 
-    fontSize: 14, 
+    fontSize: 15, 
     color: colors.textSecondary, 
     textAlign: 'center', 
     marginTop: 12, 
-    lineHeight: 20,
-    paddingHorizontal: 10 
+    lineHeight: 22,
+    paddingHorizontal: 10,
+    fontFamily: 'serif'
   },
 
   suggestionList: { gap: 12 },
@@ -363,8 +369,8 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardTitle: { fontSize: 15, fontWeight: 'bold', color: colors.text },
-  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  cardTitle: { fontSize: 16, color: colors.text, fontFamily: 'serif' },
+  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2, fontFamily: 'serif' },
 
   inputSection: {
     position: 'absolute',
@@ -390,7 +396,13 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
-  input: { flex: 1, fontSize: 15, color: colors.text, maxHeight: 100 },
+  input: { 
+    flex: 1, 
+    fontSize: 16, 
+    color: colors.text, 
+    maxHeight: 100, 
+    fontFamily: 'serif'
+  },
   sendBtn: {
     width: 40,
     height: 40,
@@ -452,9 +464,9 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     marginRight: 8,
     marginTop: 2,
   },
-  messageText: { fontSize: 15, lineHeight: 22 },
-  userText: { color: '#FFF', fontWeight: '500' },
-  aiText: { color: colors.text, lineHeight: 22 },
+  messageText: { fontSize: 15, lineHeight: 22, fontFamily: 'serif' },
+  userText: { color: '#FFF', fontFamily: 'serif' },
+  aiText: { color: colors.text, lineHeight: 22, fontFamily: 'serif' },
   typingIndicator: {
     flexDirection: 'row',
     justifyContent: 'center',

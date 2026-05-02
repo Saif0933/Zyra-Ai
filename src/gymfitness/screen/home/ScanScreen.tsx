@@ -667,9 +667,9 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
+  headerTitle: { fontSize: 28, color: isDark ? '#FFF' : '#1E293B', fontFamily: 'serif' },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  description: { fontSize: 15, color: isDark ? '#94A3B8' : '#64748B', lineHeight: 22, marginBottom: 25 },
+  description: { fontSize: 15, color: isDark ? '#94A3B8' : '#64748B', lineHeight: 22, marginBottom: 25, fontFamily: 'serif' },
 
   // Upload Card
   uploadCard: {
@@ -708,7 +708,7 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   plusBadge: {
     position: 'absolute',
     bottom: 5,
-    right: 5,
+    right: -5,
     width: 22,
     height: 22,
     borderRadius: 11,
@@ -718,8 +718,8 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     borderWidth: 2,
     borderColor: isDark ? '#111' : '#FFF',
   },
-  uploadTitle: { fontSize: 18, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
-  uploadSub: { fontSize: 13, color: '#94A3B8', marginTop: 8 },
+  uploadTitle: { fontSize: 18, color: isDark ? '#FFF' : '#1E293B', fontFamily: 'serif' },
+  uploadSub: { fontSize: 13, color: '#94A3B8', marginTop: 8, fontFamily: 'serif' },
   buttonRow: { flexDirection: 'row', marginTop: 25, gap: 12 },
   whiteBtn: {
     flexDirection: 'row',
@@ -731,7 +731,7 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     borderWidth: 1,
     borderColor: isDark ? '#22C55E' : '#DCFCE7',
   },
-  whiteBtnText: { color: isDark ? '#FFF' : '#22C55E', fontWeight: 'bold', marginLeft: 8 },
+  whiteBtnText: { color: isDark ? '#FFF' : '#22C55E', marginLeft: 8, fontFamily: 'serif' },
   greyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -740,7 +740,7 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
   },
-  greyBtnText: { color: isDark ? '#94A3B8' : '#64748B', fontWeight: 'bold', marginLeft: 8 },
+  greyBtnText: { color: isDark ? '#94A3B8' : '#64748B', marginLeft: 8, fontFamily: 'serif' },
 
   // Tips Card
   tipsCard: {
@@ -752,9 +752,9 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     marginBottom: 25,
   },
   tipsHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  tipsTitle: { fontSize: 15, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B', marginLeft: 8 },
+  tipsTitle: { fontSize: 15, color: isDark ? '#FFF' : '#1E293B', marginLeft: 8, fontFamily: 'serif' },
   tipsList: { gap: 6 },
-  tipItem: { fontSize: 13, color: isDark ? '#94A3B8' : '#64748B', lineHeight: 20 },
+  tipItem: { fontSize: 13, color: isDark ? '#94A3B8' : '#64748B', lineHeight: 20, fontFamily: 'serif' },
 
   // Placeholder Card
   placeholderCard: {
@@ -776,45 +776,46 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   },
   placeholderTitle: { 
     fontSize: 16, 
-    fontWeight: 'bold', 
     color: isDark ? '#FFF' : '#1E293B', 
     textAlign: 'center', 
-    lineHeight: 22 
+    lineHeight: 22,
+    fontFamily: 'serif'
   },
   placeholderSub: { 
     fontSize: 13, 
     color: '#94A3B8', 
     textAlign: 'center', 
     marginTop: 12, 
-    lineHeight: 18 
+    lineHeight: 18,
+    fontFamily: 'serif'
   },
 
   // Analyzing and Results
   analyzingContainer: { padding: 40, alignItems: 'center' },
-  analyzingText: { marginTop: 15, fontSize: 16, color: isDark ? '#94A3B8' : '#64748B', fontWeight: '600' },
+  analyzingText: { marginTop: 15, fontSize: 16, color: isDark ? '#94A3B8' : '#64748B', fontFamily: 'serif' },
   previewImage: { width: 120, height: 120, borderRadius: 20, marginBottom: 15 },
   
   resultCard: { backgroundColor: isDark ? '#111' : '#FFF', borderRadius: 24, padding: 20, elevation: 1, borderWidth: 1, borderColor: isDark ? '#333' : '#E2E8F0', marginTop: 10 },
   resultHeader: { flexDirection: 'row', marginBottom: 25 },
   resultImage: { width: 80, height: 80, borderRadius: 16 },
   resultMainInfo: { marginLeft: 15, flex: 1, justifyContent: 'center' },
-  foodName: { fontSize: 20, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
+  foodName: { fontSize: 20, color: isDark ? '#FFF' : '#1E293B', fontFamily: 'serif' },
   scoreRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
   scoreBadge: { backgroundColor: '#22C55E', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  scoreText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
-  scoreLabel: { fontSize: 13, color: '#94A3B8', marginLeft: 8 },
+  scoreText: { color: '#FFF', fontSize: 12, fontFamily: 'serif' },
+  scoreLabel: { fontSize: 13, color: '#94A3B8', marginLeft: 8, fontFamily: 'serif' },
 
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 20 },
   statBox: { width: (width - 85) / 2, backgroundColor: isDark ? '#1A1A1A' : '#F8FAFC', padding: 15, borderRadius: 16, marginBottom: 12 },
   statIconBg: { width: 32, height: 32, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  statValue: { fontSize: 18, fontWeight: 'bold', color: isDark ? '#FFF' : '#1E293B' },
-  statUnit: { fontSize: 12, color: '#94A3B8', marginLeft: 2 },
-  statLabel: { fontSize: 11, color: '#94A3B8', fontWeight: 'bold', marginTop: 4 },
+  statValue: { fontSize: 18, color: isDark ? '#FFF' : '#1E293B', fontFamily: 'serif' },
+  statUnit: { fontSize: 12, color: '#94A3B8', marginLeft: 2, fontFamily: 'serif' },
+  statLabel: { fontSize: 11, color: '#94A3B8', marginTop: 4, fontFamily: 'serif' },
 
   detailSection: { borderTopWidth: 1, borderTopColor: isDark ? '#222' : '#F1F5F9', paddingTop: 20, marginBottom: 20 },
   detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  detailLabel: { fontSize: 14, color: isDark ? '#94A3B8' : '#64748B', marginLeft: 12, flex: 1 },
-  detailValue: { fontSize: 14, fontWeight: '600', color: isDark ? '#FFF' : '#1E293B' },
+  detailLabel: { fontSize: 14, color: isDark ? '#94A3B8' : '#64748B', marginLeft: 12, flex: 1, fontFamily: 'serif' },
+  detailValue: { fontSize: 14, color: isDark ? '#FFF' : '#1E293B', fontFamily: 'serif' },
   
   saveBtn: { 
     flexDirection: 'row', 
@@ -824,12 +825,12 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
     borderRadius: 12,
   },
   saveBtnText: {
-    fontWeight: 'bold',
     marginLeft: 10,
     fontSize: 16,
+    fontFamily: 'serif'
   },
   resetBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: isDark ? '#333' : '#E2E8F0' },
-  resetBtnText: { color: isDark ? '#94A3B8' : '#64748B', fontWeight: 'bold', marginLeft: 8 },
+  resetBtnText: { color: isDark ? '#94A3B8' : '#64748B', marginLeft: 8, fontFamily: 'serif' },
 });
 
 export default FoodScannerScreen;
