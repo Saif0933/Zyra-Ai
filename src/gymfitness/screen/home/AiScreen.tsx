@@ -110,7 +110,7 @@ const NutriScanChat = () => {
               </View>
 
               <View style={styles.welcomeTextContainer}>
-                <Text style={styles.mainTitle}>Ask me anything about nutrition</Text>
+                <Text style={styles.mainTitle}>Ｔｙｐｅ ｓｏｍｅｔｈｉｎｇ ｔｏ ｓｔａｒｔ</Text>
                 <Text style={styles.description}>
                   I can help with meal planning, nutrition advice, supplement recommendations, and achieving your fitness goals
                 </Text>
@@ -212,7 +212,7 @@ const NutriScanChat = () => {
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput 
-              placeholder="Type your message..." 
+              placeholder="Ｔｙｐｅ ｓｏｍｅｔｈｉｎｇ ｔｏ ｓｔａｒｔ" 
               placeholderTextColor="#94A3B8"
               style={styles.input}
               value={inputText}

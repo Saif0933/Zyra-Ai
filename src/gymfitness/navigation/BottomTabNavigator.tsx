@@ -176,7 +176,7 @@ const BottomTabNavigator = () => {
         component={ScanScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <Icon name="scan-helper" color={color} size={24} />
+            <Icon name="google-lens" color={color} size={24} />
           ),
         }}
       />
