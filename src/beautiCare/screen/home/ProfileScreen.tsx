@@ -38,7 +38,7 @@ const BeautiCareProfileScreen = () => {
             rootNav.dispatch(
               CommonActions.reset({
                 index: 0,
-                routes: [{ name: 'SelectRole' }],
+                routes: [{ name: 'Login' }],
               })
             );
           } else {
@@ -46,7 +46,7 @@ const BeautiCareProfileScreen = () => {
             navigation.dispatch(
               CommonActions.reset({
                 index: 0,
-                routes: [{ name: 'SelectRole' }],
+                routes: [{ name: 'Login' }],
               })
             );
           }

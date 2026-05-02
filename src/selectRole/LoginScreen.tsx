@@ -79,10 +79,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
     
     // Brief delay to allow the loading animation to be visible
     setTimeout(() => {
-      navigation.reset({ 
-        index: 0, 
-        routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }] 
-      });
+      navigation.navigate('SelectRole');
     }, 600); // 600ms is fast but still shows the spinner
   };
 
@@ -104,10 +101,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       await auth().signInWithCredential(googleCredential);
       
-      navigation.reset({
-        index: 0,
-        routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }],
-      });
+      navigation.navigate('SelectRole');
     } catch (error: any) {
       setIsGoogleLoading(false);
       console.log('Google Sign-In Error Details:', JSON.stringify(error, null, 2));
@@ -136,10 +130,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
             style: 'destructive',
             onPress: () => {
               // Only use this for testing if your Firebase is not yet configured
-              navigation.reset({
-                index: 0,
-                routes: [{ name: isHealthAi ? 'HealthAiMain' : 'BeautiCareMain' }],
-              });
+              navigation.navigate('SelectRole');
             }
           }
         ]
@@ -177,9 +168,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
             
             {/* Minimal Header */}
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backTouch}>
-                <Icon name="close" size={24} color={isDark ? '#FFF' : '#000'} />
-              </TouchableOpacity>
               <View style={styles.brandBox}>
                 <View style={[styles.brandDot, { backgroundColor: accent }]} />
                 <Text style={styles.brandName}>SYMBOSYS</Text>
@@ -335,18 +323,18 @@ const createDynamicStyles = (isDark: boolean, accent: string) => StyleSheet.crea
   },
   brandBox: { flexDirection: 'row', alignItems: 'center' },
   brandDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
-  brandName: { fontSize: 13, fontWeight: '900', color: '#94A3B8', letterSpacing: 4 },
+  brandName: { fontSize: 13, color: '#94A3B8', letterSpacing: 4, fontFamily: 'serif' },
   
   mainContent: { flex: 1, paddingHorizontal: 30 },
   welcomeBox: { marginTop: 20, marginBottom: 30 },
-  roleLabel: { fontSize: 11, fontWeight: '900', letterSpacing: 3, marginBottom: 8 },
-  welcomeTitle: { fontSize: 38, fontWeight: '900', color: isDark ? '#FFF' : '#1E293B', lineHeight: 46, letterSpacing: -1.5 },
-  welcomeSub: { fontSize: 15, color: isDark ? '#94A3B8' : '#64748B', marginTop: 10, lineHeight: 22, maxWidth: '80%' },
+  roleLabel: { fontSize: 11, letterSpacing: 3, marginBottom: 8, fontFamily: 'serif' },
+  welcomeTitle: { fontSize: 38, color: isDark ? '#FFF' : '#1E293B', lineHeight: 46, letterSpacing: -1.5, fontFamily: 'serif' },
+  welcomeSub: { fontSize: 15, color: isDark ? '#94A3B8' : '#64748B', marginTop: 10, lineHeight: 22, maxWidth: '80%', fontFamily: 'serif' },
   
   formBox: { flex: 1 },
   inputGroup: { marginBottom: 25 },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  inputTitle: { fontSize: 11, fontWeight: '900', color: isDark ? '#94A3B8' : '#475569', letterSpacing: 2 },
+  inputTitle: { fontSize: 11, color: isDark ? '#94A3B8' : '#475569', letterSpacing: 2, fontFamily: 'serif' },
   underlinedInput: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -355,17 +343,17 @@ const createDynamicStyles = (isDark: boolean, accent: string) => StyleSheet.crea
     paddingBottom: 8,
     marginTop: 4,
   },
-  input: { flex: 1, marginLeft: 15, fontSize: 17, fontWeight: '600', color: isDark ? '#FFF' : '#1E293B' },
-  forgotLink: { fontSize: 12, fontWeight: '800' },
+  input: { flex: 1, marginLeft: 15, fontSize: 17, color: isDark ? '#FFF' : '#1E293B', fontFamily: 'serif' },
+  forgotLink: { fontSize: 12, fontFamily: 'serif' },
   
   loginBtnWrapper: { marginTop: 10, elevation: 12, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20 },
   loginBtn: { height: 64, borderRadius: 24, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loginBtnText: { color: '#FFF', fontSize: 18, fontWeight: '900', letterSpacing: 0.5 },
+  loginBtnText: { color: '#FFF', fontSize: 18, letterSpacing: 0.5, fontFamily: 'serif' },
   
   socialBox: { marginTop: 30 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   line: { flex: 1, height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
-  orText: { marginHorizontal: 15, fontSize: 10, fontWeight: '900', color: isDark ? '#475569' : '#94A3B8', letterSpacing: 2 },
+  orText: { marginHorizontal: 15, fontSize: 10, color: isDark ? '#475569' : '#94A3B8', letterSpacing: 2, fontFamily: 'serif' },
   googleButton: {
     height: 64,
     borderRadius: 24,
@@ -376,11 +364,11 @@ const createDynamicStyles = (isDark: boolean, accent: string) => StyleSheet.crea
     borderWidth: 2,
     borderColor: `${accent}40`, // Dynamic Theme Border
   },
-  googleLabel: { marginLeft: 12, fontSize: 16, fontWeight: '700', color: isDark ? '#CBD5E1' : '#1E293B' },
+  googleLabel: { marginLeft: 12, fontSize: 16, color: isDark ? '#CBD5E1' : '#1E293B', fontFamily: 'serif' },
   
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 30 },
-  footerText: { color: '#64748B', fontSize: 14, fontWeight: '600' },
-  signUpText: { fontSize: 14, fontWeight: '900' },
+  footerText: { color: '#64748B', fontSize: 14, fontFamily: 'serif' },
+  signUpText: { fontSize: 14, fontFamily: 'serif' },
 });
 
 export default LoginScreen;

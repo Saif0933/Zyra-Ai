@@ -3,7 +3,9 @@ import React from 'react';
 
 // Auth & Role Selection
 import LoginScreen from '../selectRole/LoginScreen';
+import PersonalizedScreen from '../selectRole/PersonalizedScreen';
 import SelectRoleScreen from '../selectRole/SelectRoleScreen';
+import WelcomeAboardScreen from '../selectRole/WelcomeAboardScreen';
 
 // Main Tab Navigators
 import BeautiCareTabNavigator from '../beautiCare/navigation/BeautiCareTabNavigator';
@@ -25,6 +27,8 @@ export type RootStackParamList = {
   Onboarding: undefined;
   SelectRole: undefined;
   Login: { role?: string } | undefined;
+  Personalized: { role: string };
+  WelcomeAboard: { role: string };
   HealthAiMain: undefined;
   BeautiCareMain: undefined;
   HealthGoals: undefined;
@@ -37,7 +41,7 @@ export type RootStackParamList = {
 const RootNavigator = () => {
   return (
     <Stack.Navigator
-      initialRouteName="SelectRole"
+      initialRouteName="Login"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
@@ -47,8 +51,10 @@ const RootNavigator = () => {
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
 
       {/* Auth Flow */}
-      <Stack.Screen name="SelectRole" component={SelectRoleScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SelectRole" component={SelectRoleScreen} />
+      <Stack.Screen name="Personalized" component={PersonalizedScreen} />
+      <Stack.Screen name="WelcomeAboard" component={WelcomeAboardScreen} />
 
       {/* Main Apps */}
       <Stack.Screen name="HealthAiMain" component={BottomTabNavigator} />

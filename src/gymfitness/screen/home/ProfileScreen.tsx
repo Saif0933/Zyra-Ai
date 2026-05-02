@@ -36,11 +36,11 @@ const ProfileScreen = () => {
           const rootNav = navigation.getParent();
           if (rootNav) {
             rootNav.dispatch(
-              CommonActions.reset({ index: 0, routes: [{ name: 'SelectRole' }] })
+              CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] })
             );
           } else {
             navigation.dispatch(
-              CommonActions.reset({ index: 0, routes: [{ name: 'SelectRole' }] })
+              CommonActions.reset({ index: 0, routes: [{ name: 'Login' }] })
             );
           }
         },

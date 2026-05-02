@@ -1,277 +1,470 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Animated,
   Dimensions,
-  Easing,
-  Platform,
-  StatusBar,
+  Modal,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useTheme } from '../theme/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
-interface SelectRoleScreenProps {
-  navigation: any;
+// --- TypeScript Interfaces ---
+interface PathCardProps {
+  icon: string;
+  label: string;
+  selected: boolean;
+  onPress: () => void;
 }
 
-const roles = [
-  {
-    id: 'healthai',
-    title: 'FITNESS & GYM',
-    subtitle: 'Health AI',
-    description: 'Track your body, calories, and workouts with professional precision.',
-    icon: 'arm-flex',
-    colors: ['#22C55E', '#16A34A'], // Matched Gym Home Color
-    lightColors: ['#F0FDF4', '#DCFCE7'],
-  },
-  {
-    id: 'beauticare',
-    title: 'SKIN & BEAUTY',
-    subtitle: 'BeautiCare',
-    description: 'AI Skin analysis and beauty routines for your best glow.',
-    icon: 'face-woman-shimmer',
-    colors: ['#F43F5E', '#BE123C'], // Matched Beauty Home Color
-    lightColors: ['#FFF1F2', '#FFE4E6'],
-  },
-];
+interface GenderButtonProps {
+  icon: string;
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}
 
-const SelectRoleScreen: React.FC<SelectRoleScreenProps> = ({ navigation }) => {
-  const { isDark } = useTheme();
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+const ProfileCompletionScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [gender, setGender] = useState<string | null>(null);
+  const [birthDate, setBirthDate] = useState<string | null>(null);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+
+  // Validation: All fields must be selected
+  const isFormValid = selectedPath !== null && gender !== null && birthDate !== null;
+
+  // Dynamic Theme Color
+  const themeColor = selectedPath === 'nutrition' ? '#2ECC71' : 
+                     selectedPath === 'beauty' ? '#F43F5E' : '#9BA3AF';
   
-  // Animation Values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideIn = useRef(new Animated.Value(50)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-      Animated.timing(slideIn, { toValue: 0, duration: 600, easing: Easing.out(Easing.back(1)), useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  const styles = useMemo(() => createDynamicStyles(isDark), [isDark]);
+  const buttonBgColor = selectedPath === 'nutrition' ? '#9EF0B1' : 
+                        selectedPath === 'beauty' ? '#FECDD3' : '#E2E8F0';
 
   const handleContinue = () => {
-    if (selectedRole) {
-      navigation.navigate('Login', { role: selectedRole });
+    if (isFormValid) {
+      navigation.navigate('Personalized', { 
+        role: selectedPath === 'nutrition' ? 'healthai' : 'beauticare' 
+      });
     }
   };
 
+  const onDateSelect = (date: string) => {
+    setBirthDate(date);
+    setDatePickerVisible(false);
+  };
+
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
-      
-      <View style={styles.topHeader}>
-        <View style={styles.logoBox}>
-          <Text style={styles.logo}>SYMBOSYS</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        
+        {/* Top Header Section */}
+        <View style={styles.headerSection}>
+          <View style={[styles.iconContainer, { backgroundColor: themeColor + '30', shadowColor: themeColor }]}>
+            <Icon name="account-plus" size={40} color={themeColor} />
+          </View>
+          <Text style={styles.title}>Complete Your Profile</Text>
+          <Text style={styles.subtitle}>Help us tailor your experience.</Text>
         </View>
-        <Text style={styles.welcomeText}>Choose your focus</Text>
-      </View>
 
-      <Animated.View style={[styles.tileContainer, { opacity: fadeAnim, transform: [{ translateY: slideIn }] }]}>
-        {roles.map((role) => {
-          const isSelected = selectedRole === role.id;
-          return (
-            <TouchableOpacity
-              key={role.id}
-              activeOpacity={0.9}
-              onPress={() => setSelectedRole(role.id)}
-              style={styles.roleWrapper}
-            >
-              <LinearGradient
-                colors={isSelected ? role.colors : (isDark ? ['#1E293B', '#1E293B'] : role.lightColors)}
-                style={[styles.tile, isSelected && styles.activeTile]}
-              >
-                {/* Floating Icon Background */}
-                <View style={styles.iconGhost}>
-                  <Icon name={role.icon} size={150} color={isSelected ? 'rgba(255,255,255,0.1)' : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')} />
-                </View>
+        {/* Progress Tabs */}
+        <View style={styles.tabWrapper}>
+          <View style={styles.tabItem}>
+            <View style={[styles.progressBar, { backgroundColor: isFormValid ? '#2ECC71' : themeColor }]} />
+            <Text style={[styles.tabLabel, { color: isFormValid ? '#2ECC71' : themeColor }]}>CORE SELECTION</Text>
+          </View>
+          <View style={styles.tabItem}>
+            <View style={[styles.progressBar, styles.inactiveProgress]} />
+            <Text style={[styles.tabLabel, styles.inactiveLabel]}>PERSONALIZED SPECS</Text>
+          </View>
+        </View>
 
-                <View style={styles.tileContent}>
-                  <View style={[styles.iconCircle, { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : (isDark ? '#334155' : '#FFF') }]}>
-                    <Icon name={role.icon} size={32} color={isSelected ? '#FFF' : role.colors[0]} />
-                  </View>
-                  <Text style={[styles.tileSubtitle, { color: isSelected ? 'rgba(255,255,255,0.8)' : '#94A3B8' }]}>
-                    {role.subtitle.toUpperCase()}
-                  </Text>
-                  <Text style={[styles.tileTitle, { color: isSelected ? '#FFF' : (isDark ? '#FFF' : '#1E293B') }]}>
-                    {role.title}
-                  </Text>
-                  <Text style={[styles.tileDesc, { color: isSelected ? 'rgba(255,255,255,0.7)' : '#64748B' }]} numberOfLines={2}>
-                    {role.description}
-                  </Text>
-                </View>
+        {/* Main Content Card */}
+        <View style={styles.mainCard}>
+          <Text style={styles.sectionHeader}>CHOOSE YOUR PATH</Text>
+          <View style={styles.pathRow}>
+            <PathCard 
+              icon="lightning-bolt-outline" 
+              label="Nutrition AI" 
+              selected={selectedPath === 'nutrition'}
+              activeColor="#2ECC71"
+              onPress={() => setSelectedPath('nutrition')}
+            />
+            <PathCard 
+              icon="sparkles" 
+              label="Beauty AI" 
+              selected={selectedPath === 'beauty'}
+              activeColor="#F43F5E"
+              onPress={() => setSelectedPath('beauty')}
+            />
+          </View>
 
-                {isSelected && (
-                  <View style={styles.selectedBadge}>
-                    <Icon name="check-circle" size={24} color="#FFF" />
-                  </View>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-          );
-        })}
-      </Animated.View>
+          <Text style={styles.sectionHeader}>GENDER IDENTITY</Text>
+          <View style={styles.genderRow}>
+            <GenderButton 
+              icon="gender-male" 
+              label="Male" 
+              selected={gender === 'male'}
+              activeColor={themeColor}
+              onPress={() => setGender('male')}
+            />
+            <GenderButton 
+              icon="gender-female" 
+              label="Female" 
+              selected={gender === 'female'}
+              activeColor={themeColor}
+              onPress={() => setGender('female')}
+            />
+            <GenderButton 
+              icon="account-outline" 
+              label="Other" 
+              selected={gender === 'other'}
+              activeColor={themeColor}
+              onPress={() => setGender('other')}
+            />
+          </View>
 
-      <View style={styles.bottomSection}>
-        <TouchableOpacity
-          onPress={handleContinue}
-          disabled={!selectedRole}
-          activeOpacity={0.8}
-          style={[styles.continueBtn, !selectedRole && styles.disabledBtn]}
-        >
-          <LinearGradient
-            colors={selectedRole ? (selectedRole === 'healthai' ? ['#22C55E', '#16A34A'] : ['#F43F5E', '#BE123C']) : ['#E2E8F0', '#E2E8F0']}
-            style={styles.btnGradient}
+          <Text style={styles.sectionHeader}>BIRTHDAY</Text>
+          <TouchableOpacity 
+            style={[styles.datePicker, birthDate && { borderColor: themeColor }]}
+            onPress={() => setDatePickerVisible(true)}
           >
-            <Text style={[styles.btnText, !selectedRole && { color: '#94A3B8' }]}>Get Started</Text>
-            <Icon name="arrow-right" size={20} color={selectedRole ? '#FFF' : '#94A3B8'} />
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <Icon name="calendar-blank-outline" size={20} color={birthDate ? themeColor : "#666"} />
+            <Text style={{ flex: 1, marginLeft: 15, color: birthDate ? '#0D1B2A' : '#999', fontFamily: 'serif' }}>
+              {birthDate || 'Select Date'}
+            </Text>
+            <Icon name="chevron-down" size={20} color={birthDate ? themeColor : "#666"} />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[
+              styles.continueButton, 
+              { backgroundColor: isFormValid ? buttonBgColor : '#F0F0F0' }
+            ]}
+            onPress={handleContinue}
+            disabled={!isFormValid}
+          >
+            <Text style={[styles.continueText, { color: isFormValid ? (selectedPath === 'nutrition' ? '#4A9073' : '#991B1B') : '#9BA3AF' }]}>
+              Continue to Details
+            </Text>
+            <Icon name="chevron-right" size={20} color={isFormValid ? (selectedPath === 'nutrition' ? '#4A9073' : '#991B1B') : '#9BA3AF'} />
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView>
+
+      {/* Custom Date Picker Modal */}
+      <DatePickerModal 
+        visible={isDatePickerVisible} 
+        onClose={() => setDatePickerVisible(false)} 
+        onSelect={onDateSelect}
+        themeColor={themeColor}
+      />
+    </SafeAreaView>
   );
 };
 
-const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
+// --- Sub-components ---
+
+const DatePickerModal: React.FC<{ visible: boolean; onClose: () => void; onSelect: (date: string) => void; themeColor: string }> = ({ visible, onClose, onSelect, themeColor }) => {
+  const years = Array.from({ length: 100 }, (_, i) => 2024 - i);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  const [selYear, setSelYear] = useState(2000);
+  const [selMonth, setSelMonth] = useState('Jan');
+  const [selDay, setSelDay] = useState(1);
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>Select Birthday</Text>
+          
+          <View style={styles.pickerRow}>
+            {/* Simple Picker Simulation */}
+            <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
+              {years.map(y => (
+                <TouchableOpacity key={y} onPress={() => setSelYear(y)} style={[styles.pickerItem, selYear === y && { backgroundColor: themeColor + '20' }]}>
+                  <Text style={[styles.pickerText, selYear === y && { color: themeColor }]}>{y}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
+              {months.map(m => (
+                <TouchableOpacity key={m} onPress={() => setSelMonth(m)} style={[styles.pickerItem, selMonth === m && { backgroundColor: themeColor + '20' }]}>
+                  <Text style={[styles.pickerText, selMonth === m && { color: themeColor }]}>{m}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <ScrollView style={styles.pickerColumn} showsVerticalScrollIndicator={false}>
+              {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                <TouchableOpacity key={d} onPress={() => setSelDay(d)} style={[styles.pickerItem, selDay === d && { backgroundColor: themeColor + '20' }]}>
+                  <Text style={[styles.pickerText, selDay === d && { color: themeColor }]}>{d}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.modalActions}>
+            <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => onSelect(`${selDay} ${selMonth} ${selYear}`)} 
+              style={[styles.selectBtn, { backgroundColor: themeColor }]}
+            >
+              <Text style={styles.selectText}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+const PathCard: React.FC<PathCardProps & { activeColor: string }> = ({ icon, label, selected, onPress, activeColor }) => (
+  <TouchableOpacity 
+    onPress={onPress}
+    style={[
+      styles.pathCard, 
+      selected && { borderColor: activeColor, backgroundColor: activeColor + '08' }
+    ]}
+  >
+    <Icon name={icon} size={40} color={selected ? activeColor : "#0D1B2A"} />
+    <Text style={[styles.pathLabel, selected && { color: activeColor }]}>{label}</Text>
+  </TouchableOpacity>
+);
+
+const GenderButton: React.FC<GenderButtonProps & { activeColor: string }> = ({ icon, label, selected, onPress, activeColor }) => (
+  <TouchableOpacity 
+    onPress={onPress}
+    style={[
+      styles.genderBtn, 
+      selected && { borderColor: activeColor, backgroundColor: activeColor + '08' }
+    ]}
+  >
+    <Icon name={icon} size={18} color={selected ? activeColor : "#0D1B2A"} />
+    <Text style={[styles.genderBtnLabel, selected && { color: activeColor }]}>{label}</Text>
+  </TouchableOpacity>
+);
+
+// --- Styles ---
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: isDark ? '#000' : '#FFF',
+    backgroundColor: '#F4F9FC',
   },
-  topHeader: {
-    marginTop: height * 0.08,
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  headerSection: {
     alignItems: 'center',
-    paddingHorizontal: 30,
+    marginTop: 40,
+    marginBottom: 30,
   },
-  logoBox: {
-    backgroundColor: isDark ? '#111' : '#F1F5F9',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  logo: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: isDark ? '#FFF' : '#000',
-    letterSpacing: 4,
-  },
-  welcomeText: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: isDark ? '#FFF' : '#1E293B',
-    textAlign: 'center',
-  },
-  tileContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    gap: 15,
-  },
-  roleWrapper: {
-    height: (height * 0.5) / 2,
-    borderRadius: 32,
-    overflow: 'hidden',
-  },
-  tile: {
-    flex: 1,
-    padding: 25,
-    borderRadius: 32,
-    justifyContent: 'center',
-  },
-  activeTile: {
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-  },
-  iconGhost: {
-    position: 'absolute',
-    right: -20,
-    bottom: -20,
-    transform: [{ rotate: '-15deg' }],
-  },
-  tileContent: {
-    zIndex: 1,
-  },
-  iconCircle: {
-    width: 56,
-    height: 56,
+  iconContainer: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#6EF096',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
-    elevation: 2,
-  },
-  tileSubtitle: {
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 1,
-    marginBottom: 5,
-  },
-  tileTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    letterSpacing: -0.5,
-  },
-  tileDesc: {
-    fontSize: 14,
-    marginTop: 8,
-    lineHeight: 20,
-    width: '80%',
-  },
-  selectedBadge: {
-    position: 'absolute',
-    top: 25,
-    right: 25,
-  },
-  bottomSection: {
-    padding: 30,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 30,
-  },
-  continueBtn: {
-    height: 64,
-    borderRadius: 22,
-    overflow: 'hidden',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
+    marginBottom: 20,
+    elevation: 10,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
     shadowRadius: 10,
   },
-  disabledBtn: {
-    elevation: 0,
-    shadowOpacity: 0,
+  title: {
+    fontSize: 28,
+    color: '#0D1B2A',
+    textAlign: 'center',
+    fontFamily: 'serif',
   },
-  btnGradient: {
-    flex: 1,
+  subtitle: {
+    fontSize: 16,
+    color: '#5C677D',
+    marginTop: 8,
+    fontFamily: 'serif',
+  },
+  tabWrapper: {
+    flexDirection: 'row',
+    paddingHorizontal: 25,
+    justifyContent: 'space-between',
+    marginBottom: 25,
+  },
+  tabItem: {
+    width: '48%',
+  },
+  progressBar: {
+    height: 5,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  inactiveProgress: {
+    backgroundColor: '#E1E8ED',
+  },
+  tabLabel: {
+    fontSize: 11,
+    textAlign: 'center',
+    fontFamily: 'serif',
+  },
+  inactiveLabel: {
+    color: '#9BA3AF',
+  },
+  mainCard: {
+    backgroundColor: '#FFF',
+    marginHorizontal: 25,
+    borderRadius: 30,
+    padding: 25,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+  },
+  sectionHeader: {
+    fontSize: 13,
+    color: '#5C677D',
+    marginBottom: 15,
+    letterSpacing: 1,
+    fontFamily: 'serif',
+  },
+  pathRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 30,
+  },
+  pathCard: {
+    width: '47%',
+    height: 130,
+    borderWidth: 1.5,
+    borderColor: '#F0F4F8',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+  },
+  pathLabel: {
+    fontSize: 14,
+    color: '#0D1B2A',
+    marginTop: 12,
+    textAlign: 'center',
+    paddingHorizontal: 10,
+    fontFamily: 'serif',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 30,
+  },
+  genderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#F0F4F8',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 15,
+    width: '31%',
+    justifyContent: 'center',
+  },
+  genderBtnLabel: {
+    fontSize: 12,
+    color: '#0D1B2A',
+    marginLeft: 4,
+    fontFamily: 'serif',
+  },
+  datePicker: {
+    height: 60,
+    borderWidth: 1.5,
+    borderColor: '#F0F4F8',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 40,
+  },
+  continueButton: {
+    height: 65,
+    borderRadius: 20,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
   },
-  btnText: {
+  continueText: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#FFF',
+    marginRight: 10,
+    fontFamily: 'serif',
   },
-  footerText: {
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    width: width * 0.85,
+    backgroundColor: '#FFF',
+    borderRadius: 30,
+    padding: 25,
+    elevation: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    color: '#0D1B2A',
+    marginBottom: 20,
     textAlign: 'center',
-    marginTop: 20,
-    fontSize: 14,
-    color: '#94A3B8',
-    fontWeight: '500',
+    fontFamily: 'serif',
   },
-  signIn: {
-    color: '#22C55E', // Matched Gym Green for link
-    fontWeight: 'bold',
+  pickerRow: {
+    flexDirection: 'row',
+    height: 200,
+    marginBottom: 25,
+  },
+  pickerColumn: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  pickerItem: {
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  pickerText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'serif',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelBtn: {
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+  },
+  cancelText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'serif',
+  },
+  selectBtn: {
+    paddingVertical: 15,
+    paddingHorizontal: 35,
+    borderRadius: 15,
+  },
+  selectText: {
+    fontSize: 16,
+    color: '#FFF',
+    fontFamily: 'serif',
   },
 });
 
-export default SelectRoleScreen;
+export default ProfileCompletionScreen;

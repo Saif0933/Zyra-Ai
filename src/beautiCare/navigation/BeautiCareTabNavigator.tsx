@@ -101,9 +101,9 @@ const createDynamicStyles = (isDark: boolean) => StyleSheet.create({
   },
   tabBarLabel: {
     fontSize: 10,
-    fontWeight: '600',
     marginTop: -2,
     marginBottom: 4,
+    fontFamily: 'serif',
   },
   notificationDot: {
     position: 'absolute',
