@@ -303,8 +303,8 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text },
-  headerSub: { fontSize: 12, color: colors.textSecondary },
+  headerTitle: { fontSize: 16, color: colors.text, fontFamily: 'serif' },
+  headerSub: { fontSize: 12, color: colors.textSecondary, fontFamily: 'serif' },
 
   scrollContent: { paddingHorizontal: 20, paddingTop: 40, paddingBottom: 150 },
 
@@ -332,14 +332,15 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
   },
 
   welcomeTextContainer: { alignItems: 'center', marginBottom: 30 },
-  mainTitle: { fontSize: 22, fontWeight: 'bold', color: colors.text, textAlign: 'center' },
+  mainTitle: { fontSize: 22, color: colors.text, textAlign: 'center', fontFamily: 'serif' },
   description: {
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 12,
     lineHeight: 20,
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
+    fontFamily: 'serif'
   },
 
   suggestionList: { gap: 12 },
@@ -360,8 +361,8 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardTitle: { fontSize: 15, fontWeight: 'bold', color: colors.text },
-  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  cardTitle: { fontSize: 15, color: colors.text, fontFamily: 'serif' },
+  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2, fontFamily: 'serif' },
 
   inputSection: {
     position: 'absolute',
@@ -387,7 +388,7 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
-  input: { flex: 1, fontSize: 15, color: colors.text, maxHeight: 100 },
+  input: { flex: 1, fontSize: 15, color: colors.text, maxHeight: 100, fontFamily: 'serif' },
   sendBtn: {
     width: 40,
     height: 40,
@@ -448,9 +449,9 @@ const createDynamicStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet
     marginRight: 8,
     marginTop: 2,
   },
-  messageText: { fontSize: 15, lineHeight: 22 },
-  userText: { color: '#FFF', fontWeight: '500' },
-  aiText: { color: colors.text, lineHeight: 22 },
+  messageText: { fontSize: 15, lineHeight: 22, fontFamily: 'serif' },
+  userText: { color: '#FFF', fontFamily: 'serif' },
+  aiText: { color: colors.text, lineHeight: 22, fontFamily: 'serif' },
   typingIndicator: {
     flexDirection: 'row',
     justifyContent: 'center',
